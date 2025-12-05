@@ -5,25 +5,25 @@ export default function TeamSection() {
     {
       name: "Nguyễn Văn An",
       role: "CEO & Founder",
-      avatar: "/images/girl-portrait.jpg",
+      avatar: "/images/About/1.jpg",
       desc: "Với niềm đam mê du lịch bất tận, anh An đã sáng lập Traveloka với mong muốn chia sẻ vẻ đẹp Việt Nam đến mọi người.",
     },
     {
       name: "Trần Thị Bích",
       role: "Head of Operations",
-      avatar: "/placeholder.png",
+      avatar: "/images/About/2.jpg",
       desc: "Chị Bích là người đảm bảo mọi hoạt động diễn ra suôn sẻ, mang đến trải nghiệm hoàn hảo cho khách hàng.",
     },
     {
       name: "Lê Minh Cường",
       role: "CTO",
-      avatar: "/placeholder.png",
+      avatar: "/images/About/3.jpg",
       desc: "Anh Cường dẫn dắt đội ngũ kỹ thuật, xây dựng nền tảng công nghệ vững chắc cho Traveloka.",
     },
     {
       name: "Phạm Thùy Dung",
       role: "Head of Marketing",
-      avatar: "/placeholder.png",
+      avatar: "/images/About/4.jpg",
       desc: "Chị Dung chịu trách nhiệm về chiến lược marketing, giúp lan tỏa câu chuyện Traveloka đến cộng đồng.",
     },
   ];

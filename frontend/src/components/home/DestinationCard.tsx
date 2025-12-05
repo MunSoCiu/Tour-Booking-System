@@ -1,18 +1,20 @@
 import Image from "next/image";
 
-export default function DestinationCard({
-  title,
-  image,
-}: {
+interface Props {
   title: string;
   image: string;
-}) {
+}
+
+export default function DestinationCard({ title, image }: Props) {
   return (
-    <div className="rounded-xl overflow-hidden shadow hover:shadow-lg transition cursor-pointer bg-white">
-      <div className="h-56 w-full relative">
+    <div className="rounded-xl overflow-hidden shadow-md bg-white hover:shadow-lg transition cursor-pointer">
+      <div className="relative h-52 w-full">
         <Image src={image} alt={title} fill className="object-cover" />
       </div>
-      <div className="p-3 font-medium">{title}</div>
+
+      <div className="p-4">
+        <h3 className="font-semibold">{title}</h3>
+      </div>
     </div>
   );
 }

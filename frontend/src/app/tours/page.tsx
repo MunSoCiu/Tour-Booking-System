@@ -8,7 +8,7 @@ export default function ToursPage() {
   const tours = [
     {
       id: 1,
-      image: "/images/tour1.jpg",
+      image: "/images/tours/tour1.jpg",
       title: "Tour Phan Thiết 3N2Đ – Resort 4 sao",
       days: "3 ngày 2 đêm",
       location: "Phan Thiết",
@@ -19,7 +19,7 @@ export default function ToursPage() {
     },
     {
       id: 2,
-      image: "/images/tour2.jpg",
+      image: "/images/sapa.jpg",
       title: "Khám phá Sapa – Nóc nhà Đông Dương",
       days: "4 ngày 3 đêm",
       location: "Sapa",
@@ -30,7 +30,7 @@ export default function ToursPage() {
     },
     {
       id: 3,
-      image: "/images/tour3.jpg",
+      image: "/images/danang.jpg",
       title: "Đà Nẵng – Hội An – Bà Nà Hills",
       days: "3 ngày 2 đêm",
       location: "Đà Nẵng",
@@ -41,7 +41,7 @@ export default function ToursPage() {
 
     {
       id: 4,
-      image: "/images/tour4.jpg",
+      image: "/images/halong.jpg",
       title: "Du thuyền Vịnh Hạ Long 5 sao",
       days: "2 ngày 1 đêm",
       location: "Hạ Long",
@@ -51,7 +51,7 @@ export default function ToursPage() {
     },
     {
       id: 5,
-      image: "/images/tour5.jpg",
+      image: "/images/tours/tour2.jpg",
       title: "Miền Tây sông nước: Cần Thơ – Châu Đốc",
       days: "3 ngày 2 đêm",
       location: "Cần Thơ",
@@ -61,7 +61,7 @@ export default function ToursPage() {
     },
     {
       id: 6,
-      image: "/images/tour6.jpg",
+      image: "/images/tours/tour3.jpg",
       title: "City Tour Hà Nội – Ngàn năm văn hiến",
       days: "1 Ngày",
       location: "Hà Nội",

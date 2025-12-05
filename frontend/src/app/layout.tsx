@@ -29,7 +29,13 @@ export default function RootLayout({
               href="/"
               className="text-2xl font-bold text-blue-600 flex items-center gap-2"
             >
-              <Image src="/logo.png" width={32} height={32} alt="GoTour logo" />
+              <Image
+                src="/images/logo.jpg"
+                width={50}
+                height={50}
+                alt="GoTour logo"
+                priority
+              />
               GoTour
             </Link>
 
@@ -37,13 +43,13 @@ export default function RootLayout({
             <div className="hidden md:flex gap-8 font-medium text-gray-700">
               <Link href="/">Trang Chủ</Link>
               <Link href="/tours">Tours</Link>
-              <Link href="/promotions">Khuyến Mãi</Link>
+              <Link href="/deals">Khuyến Mãi </Link>
               <Link href="/blog">Blog</Link>
               <Link href="/about">Về Chúng Tôi</Link>
               <Link href="/contact">Liên Hệ</Link>
             </div>
 
-            {/* AUTH + ACCOUNT */}
+            {/* AUTH */}
             <div className="flex items-center gap-3">
               <Link
                 href="/login"
@@ -62,9 +68,9 @@ export default function RootLayout({
         </nav>
 
         {/* ========================================================= */}
-        {/* CONTENT */}
+        {/* PAGE CONTENT */}
         {/* ========================================================= */}
-        <main className="min-h-screen bg-white">{children}</main>
+        <main className="bg-white">{children}</main>
 
         {/* ========================================================= */}
         {/* FOOTER */}
@@ -120,6 +126,7 @@ export default function RootLayout({
               <p className="text-gray-600 text-sm mb-3">
                 Đăng ký email để nhận ưu đãi và voucher độc quyền.
               </p>
+
               <div className="flex">
                 <input
                   type="email"

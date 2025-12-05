@@ -8,7 +8,7 @@ export default function AboutPage() {
     <div className="bg-white min-h-screen pb-20">
       {/* TITLE */}
       <div className="text-center mt-12 px-4">
-        <h1 className="text-4xl font-bold">Câu Chuyện Của Traveloka</h1>
+        <h1 className="text-4xl font-bold">Câu Chuyện Của Go Tour </h1>
         <p className="text-gray-600 mt-2">
           Hành trình mang những trải nghiệm du lịch tuyệt vời nhất đến với mọi
           người, mọi nhà.

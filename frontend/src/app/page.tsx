@@ -12,17 +12,17 @@ export default function HomePage() {
       {/* =============================== */}
       {/* HERO SECTION */}
       {/* =============================== */}
-      <section className="relative h-[520px] w-full">
+      <section className="relative h-[520px] w-full overflow-hidden">
         <Image
           src="/images/hero-bg.jpg"
           alt="Travel Hero Background"
           fill
-          className="object-cover brightness-[0.65]"
+          className="object-cover brightness-[0.65] z-0"
           priority
         />
 
         {/* Overlay Content */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 z-10">
           <h1 className="text-white font-bold text-4xl md:text-5xl leading-snug drop-shadow-lg">
             Khám Phá Thế Giới, Tìm Kiếm <br /> Cuộc Phiêu Lưu Tiếp Theo
           </h1>
@@ -97,7 +97,7 @@ export default function HomePage() {
             oldPrice="5.000.000đ"
             price="4.000.000đ"
             desc="Trải nghiệm văn hóa đặc sắc và ẩm thực phong phú."
-            image="/images/chau-a.jpg"
+            image="/images/asia-tour.jpg"
           />
 
           <DealCard
@@ -106,7 +106,7 @@ export default function HomePage() {
             oldPrice="15.000.000đ"
             price="12.750.000đ"
             desc="Khám phá vẻ đẹp cổ kính của Paris, Rome và Venice."
-            image="/images/paris.jpg"
+            image="/images/europe-tour.jpg"
           />
 
           <DealCard
@@ -114,7 +114,7 @@ export default function HomePage() {
             title="Phiêu Lưu Sa Mạc Huyền Bí"
             price="8.500.000đ"
             desc="Trải nghiệm độc đáo tại vùng sa mạc rộng lớn."
-            image="/images/desert.jpg"
+            image="/images/desert-tour.jpg"
           />
         </div>
       </section>
@@ -133,8 +133,8 @@ export default function HomePage() {
             name="An Nguyễn"
             role="Khách hàng"
             text="Chuyến đi tuyệt vời! Dịch vụ chuyên nghiệp, hướng dẫn viên thân thiện."
-            rating={5}
-            avatar="/images/user1.jpg"
+            rating={4}
+            avatar="/images/avatar1.jpg"
             date="10/02/2024"
             tourName="Tour Vịnh Hạ Long 2N1Đ"
           />
@@ -145,7 +145,7 @@ export default function HomePage() {
             role="Khách hàng"
             text="Mọi thứ được sắp xếp rất chu đáo. Giá hợp lý, chất lượng cao."
             rating={4}
-            avatar="/images/user2.jpg"
+            avatar="/images/avatar2.jpg"
             date="05/01/2024"
             tourName="Tour Đà Lạt 3N2Đ"
           />
@@ -156,7 +156,7 @@ export default function HomePage() {
             role="Khách hàng"
             text="Giá cả hợp lý, chất lượng vượt trội. Rất đáng để trải nghiệm."
             rating={5}
-            avatar="/images/user3.jpg"
+            avatar="/images/avatar2.jpg"
             date="22/12/2023"
             tourName="Tour Phú Quốc 4N3Đ"
           />

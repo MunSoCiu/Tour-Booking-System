@@ -13,7 +13,7 @@ export default function ContactInfo() {
 
         <p className="flex items-center gap-3">
           <Mail className="text-blue-600 w-5 h-5" />
-          Email: <strong>hotro@traveloka.com</strong>
+          Email: <strong>hotro@GoTour.com</strong>
         </p>
 
         <p className="flex items-center gap-3">
@@ -23,11 +23,11 @@ export default function ContactInfo() {
         </p>
 
         {/* Image Placeholder */}
-        <div className="w-full h-48 bg-gray-100 rounded-xl flex items-center justify-center border">
+        <div className="w-full h-48 bg-gray-100 rounded-xl overflow-hidden border">
           <img
-            src="/icons/image-placeholder.svg"
+            src="/icon/LienHe.jpg"
             alt="placeholder"
-            className="w-10 h-10 opacity-40"
+            className="w-full h-full object-cover"
           />
         </div>
       </div>

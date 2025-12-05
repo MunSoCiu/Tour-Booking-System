@@ -22,12 +22,11 @@ export default function MissionSection() {
       </div>
 
       {/* IMAGE */}
-      <div className="w-full h-72 bg-gray-100 rounded-2xl flex items-center justify-center">
-        <Image
-          src="/icons/image-placeholder.svg"
-          width={60}
-          height={60}
+      <div className="w-full h-48 bg-gray-100 rounded-xl overflow-hidden border">
+        <img
+          src="/images/logo.jpg"
           alt="placeholder"
+          className="w-full h-full object-cover"
         />
       </div>
     </section>

@@ -1,68 +1,51 @@
+import Image from "next/image";
 import { Star } from "lucide-react";
 
-interface TestimonialCardProps {
+interface Props {
   id: string;
   name: string;
-  avatar?: string;
-  rating: number;
-  text: string;
-  date?: string;
-  tourName?: string;
   role: string;
+  avatar: string;
+  text: string;
+  rating: number;
+  date: string;
+  tourName: string;
 }
 
 export default function TestimonialCard({
   id,
   name,
+  role,
   avatar,
-  rating,
   text,
+  rating,
   date,
   tourName,
-  role,
-}: TestimonialCardProps) {
+}: Props) {
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-      {/* Header */}
-      <div className="flex items-center gap-4 mb-4">
-        {/* Avatar */}
-        <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-          {avatar ? (
-            <img
-              src={avatar}
-              alt={name}
-              className="w-full h-full rounded-full object-cover"
-            />
-          ) : (
-            name
-              .split(" ")
-              .map((n) => n[0])
-              .join("")
-              .toUpperCase()
-          )}
-        </div>
-
-        <div className="flex-1">
-          <h4 className="font-semibold text-gray-900">{name}</h4>
-          {tourName && <p className="text-sm text-gray-600">{tourName}</p>}
-          {date && <p className="text-xs text-gray-500">{date}</p>}
-        </div>
-
-        {/* Rating */}
-        <div className="flex">
-          {[...Array(5)].map((_, i) => (
-            <Star
-              key={i}
-              className={`w-4 h-4 ${
-                i < rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-              }`}
-            />
-          ))}
-        </div>
+    <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition p-6">
+      <div className="flex gap-1 mb-3">
+        {[...Array(rating)].map((_, i) => (
+          <Star key={i} className="text-yellow-400 fill-yellow-400 w-5 h-5" />
+        ))}
       </div>
 
-      {/* Review Text */}
-      <p className="text-gray-700 italic leading-relaxed">"{text}"</p>
+      <p className="text-gray-700 italic mb-4">"{text}"</p>
+
+      <div className="flex items-center gap-3">
+        <Image
+          src={avatar}
+          alt={name}
+          width={48}
+          height={48}
+          className="rounded-full object-cover"
+        />
+
+        <div>
+          <h4 className="font-semibold">{name}</h4>
+          <p className="text-sm text-gray-500">{role}</p>
+        </div>
+      </div>
     </div>
   );
 }
