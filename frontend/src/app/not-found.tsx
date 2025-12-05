@@ -1,16 +1,19 @@
+import Link from "next/link";
+import { Search } from "lucide-react";
+
 export default function NotFound() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen text-center p-6">
-      <h1 className="text-5xl font-bold mb-4">404</h1>
-      <p className="text-lg mb-6">
-        Trang bạn tìm không tồn tại hoặc đã bị xoá.
+    <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-6">
+      <Search className="w-14 h-14 text-gray-400" />
+
+      <h1 className="text-3xl font-bold mt-4">Không tìm thấy trang</h1>
+      <p className="text-gray-500 mt-2 max-w-md">
+        Trang bạn đang tìm có thể đã bị xoá hoặc đường dẫn không chính xác.
       </p>
-      <a
-        href="/"
-        className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
-      >
-        Quay lại trang chủ
-      </a>
+
+      <Link href="/" className="btn-primary mt-6 inline-block">
+        Về trang chủ
+      </Link>
     </div>
   );
 }
