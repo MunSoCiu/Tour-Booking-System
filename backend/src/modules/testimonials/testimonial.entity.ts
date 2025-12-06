@@ -1,30 +1,28 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-} from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("testimonials")
+@Entity()
 export class Testimonial {
-  @PrimaryGeneratedColumn("uuid")
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column()
   name: string;
 
-  @Column({ nullable: true })
+  @Column()
   role: string;
 
-  @Column("int", { default: 5 })
+  @Column({ type: "int", default: 5 })
   rating: number;
 
-  @Column("text")
+  @Column({ type: "text" })
   text: string;
 
   @Column({ nullable: true })
+  avatar: string;
+
+  @Column()
   tourName: string;
 
-  @CreateDateColumn()
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 }

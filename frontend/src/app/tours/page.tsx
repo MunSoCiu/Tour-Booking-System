@@ -1,134 +1,161 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import TourFilter from "@/components/tour/TourFilter";
 import TourCard from "@/components/tour/TourCard";
-import Pagination from "@/components/common/Pagination";
 
 export default function ToursPage() {
-  const tours = [
-    {
-      id: 1,
-      image: "/images/tours/tour1.jpg",
-      title: "Tour Phan Thiết 3N2Đ – Resort 4 sao",
-      days: "3 ngày 2 đêm",
-      location: "Phan Thiết",
-      rating: 4.8,
-      reviews: 120,
-      price: 2500000,
-      badge: "Khuyến mãi",
-    },
-    {
-      id: 2,
-      image: "/images/sapa.jpg",
-      title: "Khám phá Sapa – Nóc nhà Đông Dương",
-      days: "4 ngày 3 đêm",
-      location: "Sapa",
-      rating: 5.0,
-      reviews: 98,
-      price: 4200000,
-      badge: "Tour mới",
-    },
-    {
-      id: 3,
-      image: "/images/danang.jpg",
-      title: "Đà Nẵng – Hội An – Bà Nà Hills",
-      days: "3 ngày 2 đêm",
-      location: "Đà Nẵng",
-      rating: 4.2,
-      reviews: 215,
-      price: 3800000,
-    },
+  const API = process.env.NEXT_PUBLIC_API_URL;
+  const [tours, setTours] = useState<any[]>([]);
+  const [filters, setFilters] = useState<any>({});
+  const [page, setPage] = useState(1);
+  const pageSize = 6;
 
-    {
-      id: 4,
-      image: "/images/halong.jpg",
-      title: "Du thuyền Vịnh Hạ Long 5 sao",
-      days: "2 ngày 1 đêm",
-      location: "Hạ Long",
-      rating: 4.9,
-      reviews: 302,
-      price: 2950000,
-    },
-    {
-      id: 5,
-      image: "/images/tours/tour2.jpg",
-      title: "Miền Tây sông nước: Cần Thơ – Châu Đốc",
-      days: "3 ngày 2 đêm",
-      location: "Cần Thơ",
-      rating: 4.8,
-      reviews: 88,
-      price: 2100000,
-    },
-    {
-      id: 6,
-      image: "/images/tours/tour3.jpg",
-      title: "City Tour Hà Nội – Ngàn năm văn hiến",
-      days: "1 Ngày",
-      location: "Hà Nội",
-      rating: 4.7,
-      reviews: 150,
-      price: 850000,
-    },
-  ];
+  // ================================
+  // FETCH TOURS
+  // ================================
+  useEffect(() => {
+    if (!API) return console.error("❌ Missing NEXT_PUBLIC_API_URL");
+
+    fetch(`${API}/tours`)
+      .then((res) => res.json())
+      .then((data) => {
+        const list = Array.isArray(data) ? data : data.items ?? [];
+        setTours(list);
+      })
+      .catch((err) => console.error("❌ Error fetching tours:", err));
+  }, [API]);
+
+  // ================================
+  // FILTER LOGIC
+  // ================================
+  const filteredTours = useMemo(() => {
+    return tours.filter((tour) => {
+      // ======================
+      // 1. FILTER LOCATION
+      // ======================
+      if (
+        filters.location &&
+        !tour.location.toLowerCase().includes(filters.location.toLowerCase())
+      ) {
+        return false;
+      }
+
+      // ======================
+      // 2. FILTER MAX PRICE
+      // ======================
+      if (filters.maxPrice && tour.price > filters.maxPrice) {
+        return false;
+      }
+
+      // ======================
+      // 3. FILTER BY DAYS (N)
+      // ======================
+      if (filters.days) {
+        const tourDays = Number(tour.duration.split("N")[0]); // tách số ngày
+        if (tourDays !== filters.days) return false;
+      }
+
+      return true;
+    });
+  }, [tours, filters]);
+
+  // ================================
+  // PAGINATION
+  // ================================
+  const totalPages = Math.ceil(filteredTours.length / pageSize);
+  const paginatedTours = filteredTours.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  );
 
   return (
-    <div className="bg-white min-h-screen pb-20">
-      {/* HEADER */}
-      <div className="max-w-6xl mx-auto px-4 py-6 text-sm text-gray-600">
-        Trang chủ / Danh sách Tour
-      </div>
+    <div className="w-full">
+      {/* HERO SECTION */}
+      <section className="relative h-[260px] w-full overflow-hidden">
+        <Image
+          src="/images/tours-banner.jpg"
+          fill
+          alt="Tours Banner"
+          className="object-cover brightness-[0.65]"
+        />
 
-      <div className="max-w-6xl mx-auto px-4">
-        <h1 className="text-3xl font-bold">
-          Khám phá các tour du lịch hấp dẫn
-        </h1>
-      </div>
-
-      {/* MAIN GRID */}
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6 mt-8 px-4">
-        {/* FILTER SIDEBAR */}
-        <TourFilter />
-
-        {/* TOUR LIST */}
-        <div className="lg:col-span-3">
-          <div className="flex justify-between mb-4">
-            <p className="text-gray-600">
-              Tìm thấy <strong>72 tours</strong> phù hợp
+        <div className="absolute inset-0 flex items-center justify-center text-center text-white px-4">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold drop-shadow">
+              Tất Cả Tour Du Lịch
+            </h1>
+            <p className="text-lg mt-2 opacity-90">
+              Khám phá hàng trăm hành trình tuyệt vời dành cho bạn
             </p>
+          </div>
+        </div>
+      </section>
 
-            <select className="border rounded-lg px-4 py-2 text-sm">
-              <option>Phổ biến nhất</option>
-              <option>Giá thấp đến cao</option>
-              <option>Giá cao đến thấp</option>
-              <option>Đánh giá tốt nhất</option>
-            </select>
+      {/* LIST + FILTER */}
+      <div className="py-10 px-4 md:px-8 lg:px-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-7xl mx-auto">
+          {/* LEFT FILTER */}
+          <div className="md:col-span-1">
+            <TourFilter onChange={setFilters} />
           </div>
 
-          {/* GRID TOUR CARDS */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-            {tours.map((tour) => (
-              <TourCard key={tour.id} tour={tour} />
-            ))}
-          </div>
+          {/* RIGHT LIST */}
+          <div className="md:col-span-3 space-y-6">
+            <h2 className="text-2xl font-semibold">
+              Tìm thấy {filteredTours.length} tour
+            </h2>
 
-          {/* PAGINATION */}
-          <div className="mt-10 flex justify-center">
-            <Pagination />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {paginatedTours.map((tour) => (
+                <TourCard key={tour.id} tour={tour} />
+              ))}
+            </div>
+
+            {paginatedTours.length === 0 && (
+              <p className="text-center text-gray-500 py-10">
+                Không tìm thấy tour phù hợp với bộ lọc.
+              </p>
+            )}
+
+            {/* PAGINATION */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 mt-6">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-3 py-1 border rounded-lg disabled:opacity-40"
+                >
+                  Trước
+                </button>
+
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setPage(i + 1)}
+                    className={`px-3 py-1 border rounded-lg ${
+                      page === i + 1
+                        ? "bg-blue-600 text-white"
+                        : "hover:bg-gray-100"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="px-3 py-1 border rounded-lg disabled:opacity-40"
+                >
+                  Sau
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
-
-      {/* FOOTER */}
-      <footer className="border-t mt-16 py-10 text-center text-gray-600 text-sm">
-        <div className="flex justify-center gap-6 mb-4">
-          <a href="#">Giới thiệu</a>
-          <a href="#">Blog du lịch</a>
-          <a href="#">Cơ hội nghề nghiệp</a>
-          <a href="#">Trung tâm hỗ trợ</a>
-          <a href="#">Chính sách bảo mật</a>
-        </div>
-        <p>© 2024 TravelViet. All rights reserved.</p>
-      </footer>
     </div>
   );
 }

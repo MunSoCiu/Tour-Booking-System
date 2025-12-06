@@ -1,8 +1,6 @@
 export function formatPrice(price: number): string {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
+  return price.toLocaleString("vi-VN", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(price);
+  });
 }

@@ -1,13 +1,15 @@
 import { formatPrice } from "@/lib/utils/formatPrice";
 import { Lock } from "lucide-react";
 
-export default function PaymentSummary() {
-  const items = [
-    { name: "Tour Châu Âu (2 khách)", price: 51980000 },
-    { name: "Tour Nhật Bản (1 khách)", price: 32500000 },
-  ];
-  const serviceFee = 500000;
-
+export default function PaymentSummary({
+  items,
+  serviceFee,
+  onPay,
+}: {
+  items: { name: string; price: number }[];
+  serviceFee: number;
+  onPay: () => void;
+}) {
   const total = items.reduce((sum, i) => sum + i.price, 0) + serviceFee;
 
   return (
@@ -33,7 +35,10 @@ export default function PaymentSummary() {
         <span className="text-blue-600">{formatPrice(total)}</span>
       </div>
 
-      <button className="mt-6 w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition flex items-center justify-center gap-2">
+      <button
+        onClick={onPay}
+        className="mt-6 w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition flex items-center justify-center gap-2"
+      >
         <Lock className="w-4 h-4" />
         Hoàn tất thanh toán
       </button>

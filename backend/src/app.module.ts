@@ -9,6 +9,7 @@ import { OrdersModule } from "./modules/orders/orders.module";
 import { PaymentsModule } from "./modules/payments/payments.module";
 import { TestimonialsModule } from "./modules/testimonials/testimonials.module";
 import { ContactModule } from "./modules/contact/contact.module";
+import { ConfigModule } from "@nestjs/config";
 
 @Module({
   imports: [
@@ -21,6 +22,8 @@ import { ContactModule } from "./modules/contact/contact.module";
     PaymentsModule,
     TestimonialsModule,
     ContactModule,
+    ConfigModule.forRoot({ isGlobal: true }),
+    TypeOrmModule.forRoot(ormconfig),
   ],
 })
 export class AppModule {}

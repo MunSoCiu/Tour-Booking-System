@@ -1,91 +1,94 @@
-import { Calendar, ChevronDown } from "lucide-react";
+"use client";
 
-export default function TourFilter() {
+import { useState } from "react";
+
+export default function TourFilter({ onChange }: any) {
+  const [destination, setDestination] = useState("");
+  const [price, setPrice] = useState(20_000_000); // max mặc định
+  const [days, setDays] = useState("all"); // 2 → 2N, 3 → 3N,...
+
+  // APPLY FILTER
+  const apply = () => {
+    onChange({
+      location: destination || null,
+      maxPrice: price,
+      days: days === "all" ? null : Number(days), // gửi SỐ, FE filter sẽ match 2N*, 3N*, ...
+    });
+  };
+
+  // RESET FILTER
+  const reset = () => {
+    setDestination("");
+    setPrice(20_000_000);
+    setDays("all");
+
+    onChange({}); // gửi object rỗng → load lại tất cả
+  };
+
   return (
-    <div className="bg-white border rounded-xl shadow-sm p-5 h-max">
-      <h3 className="font-semibold mb-4">Bộ lọc</h3>
+    <div className="bg-white border rounded-xl p-5">
+      <h3 className="font-semibold mb-4 text-lg">Bộ lọc</h3>
 
-      <div className="space-y-4 text-sm">
-        {/* Destination */}
-        <div>
-          <label>Tìm điểm đến</label>
-          <input
-            placeholder="Nhập thành phố..."
-            className="mt-1 w-full border rounded-lg px-3 py-2"
-          />
-        </div>
-
-        {/* Date */}
-        <div>
-          <label>Ngày đi</label>
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="mm/dd/yyyy"
-              className="mt-1 w-full border rounded-lg px-3 py-2"
-            />
-            <Calendar className="w-4 h-4 text-gray-400 absolute right-3 top-3" />
-          </div>
-        </div>
-
-        {/* Budget */}
-        <div>
-          <label>Ngân sách</label>
-          <input type="range" className="w-full" />
-          <div className="flex justify-between text-gray-500 text-xs">
-            <span>500k</span>
-            <span>20tr+</span>
-          </div>
-        </div>
-
-        {/* Type */}
-        <div>
-          <label>Loại tour</label>
-          <div className="relative">
-            <select className="mt-1 w-full border rounded-lg px-3 py-2 appearance-none">
-              <option>Tất cả</option>
-              <option>Gia đình</option>
-              <option>Cặp đôi</option>
-              <option>Nhóm bạn</option>
-            </select>
-            <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-gray-400" />
-          </div>
-        </div>
-
-        {/* Guests */}
-        <div>
-          <label>Số lượng khách</label>
-          <input
-            type="number"
-            defaultValue={2}
-            className="mt-1 w-full border rounded-lg px-3 py-2"
-          />
-        </div>
-
-        {/* Amenities */}
-        <div>
-          <label className="font-medium">Tiện ích</label>
-          <div className="mt-2 space-y-2">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" /> Có hướng dẫn viên
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" /> Bao gồm bữa ăn
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" /> Bao gồm khách sạn
-            </label>
-          </div>
-        </div>
-
-        <button className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium mt-4">
-          Áp dụng bộ lọc
-        </button>
-
-        <button className="w-full border py-2 rounded-lg font-medium text-gray-600">
-          Xoá bộ lọc
-        </button>
+      {/* LOCATION */}
+      <div className="space-y-1">
+        <label className="font-medium">Điểm đến</label>
+        <input
+          value={destination}
+          onChange={(e) => setDestination(e.target.value)}
+          className="w-full px-3 py-2 border rounded-lg"
+          placeholder="Nhập thành phố..."
+        />
       </div>
+
+      {/* PRICE */}
+      <div className="mt-4 space-y-1">
+        <label className="font-medium">Ngân sách tối đa</label>
+        <input
+          type="range"
+          min={500_000}
+          max={20_000_000}
+          step={500_000}
+          value={price}
+          onChange={(e) => setPrice(Number(e.target.value))}
+          className="w-full"
+        />
+        <p className="text-sm text-gray-600 text-right">
+          {(price / 1_000_000).toFixed(1)} triệu
+        </p>
+      </div>
+
+      {/* DAYS */}
+      <div className="mt-4 space-y-1">
+        <label className="font-medium">Số ngày</label>
+        <select
+          value={days}
+          onChange={(e) => setDays(e.target.value)}
+          className="w-full border px-3 py-2 rounded-lg"
+        >
+          <option value="all">Tất cả</option>
+          <option value="2">2N</option>
+          <option value="3">3N</option>
+          <option value="4">4N</option>
+          <option value="5">5N</option>
+          <option value="6">6N</option>
+          <option value="7">7N</option>
+        </select>
+      </div>
+
+      {/* BUTTONS */}
+      <button
+        onClick={apply}
+        className="w-full mt-5 bg-blue-600 text-white py-2 rounded-lg font-medium"
+      >
+        Áp dụng bộ lọc
+      </button>
+
+      <button
+        onClick={reset}
+        className="w-full mt-2 border py-2 rounded-lg text-gray-600"
+      >
+        Xoá bộ lọc
+      </button>
     </div>
   );
 }

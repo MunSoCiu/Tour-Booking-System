@@ -8,6 +8,7 @@ export default function DealCard({
   price,
   desc,
   image,
+  key,
 }: {
   tag: string;
   title: string;
@@ -15,6 +16,7 @@ export default function DealCard({
   price: string;
   desc: string;
   image: string;
+  key: string;
 }) {
   return (
     <div className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">

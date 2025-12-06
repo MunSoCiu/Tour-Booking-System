@@ -23,7 +23,7 @@ services:
       MYSQL_USER: gotour
       MYSQL_PASSWORD: gotourpass
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
 

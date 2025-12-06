@@ -1,43 +1,40 @@
-"use client";
-
 import ContactForm from "@/components/contact/ContactForm";
 import ContactInfo from "@/components/contact/ContactInfo";
 import FAQ from "@/components/contact/FAQ";
 
 export default function ContactPage() {
   return (
-    <div className="bg-white min-h-screen pb-20">
-      {/* TITLE */}
-      <div className="text-center mt-10 px-4">
-        <h1 className="text-4xl font-bold">Liên hệ với chúng tôi</h1>
-        <p className="text-gray-600 mt-2">
-          Chúng tôi luôn sẵn sàng lắng nghe bạn. Vui lòng chọn một trong các
-          phương thức liên hệ dưới đây.
+    <div className="w-full bg-gray-50 pb-20 pt-10">
+      {/* PAGE HEADER */}
+      <div className="text-center mb-12 px-4">
+        <h1 className="text-3xl font-bold text-gray-800">Liên hệ GoTour</h1>
+        <p className="text-gray-500 mt-2">
+          Chúng tôi luôn sẵn sàng hỗ trợ bạn 24/7 – hãy gửi tin nhắn cho chúng
+          tôi!
         </p>
       </div>
 
-      {/* FORM + INFO GRID */}
-      <div className="max-w-6xl mx-auto mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6 px-4">
-        {/* LEFT: FORM */}
-        <ContactForm />
+      {/* MAIN CONTENT */}
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 px-4">
+        {/* LEFT: CONTACT FORM */}
+        <div className="md:col-span-2">
+          <ContactForm />
+        </div>
 
         {/* RIGHT: CONTACT INFO */}
-        <ContactInfo />
+        <div className="md:col-span-1">
+          <ContactInfo />
+        </div>
       </div>
 
       {/* FAQ SECTION */}
-      <div className="max-w-4xl mx-auto mt-16 px-4">
-        <h2 className="text-center text-2xl font-bold">
-          Câu hỏi thường gặp (FAQ)
+      <section className="max-w-5xl mx-auto mt-16 px-4">
+        <h2 className="text-2xl font-semibold text-center mb-6">
+          Câu hỏi thường gặp
         </h2>
 
-        <div className="mt-8 space-y-3">
-          <FAQ question="Làm thế nào để đặt tour?" />
-          <FAQ question="Chính sách hủy tour như thế nào?" />
-          <FAQ question="Tôi có thể thanh toán bằng những hình thức nào?" />
-          <FAQ question="Làm sao để liên hệ hỗ trợ khi đang trong chuyến đi?" />
-        </div>
-      </div>
+        <FAQ />
+      </section>
     </div>
   );
 }

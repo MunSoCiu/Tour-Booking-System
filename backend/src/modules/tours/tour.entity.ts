@@ -3,9 +3,10 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  UpdateDateColumn,
 } from "typeorm";
 
-@Entity("tours")
+@Entity()
 export class Tour {
   @PrimaryGeneratedColumn("uuid")
   id: string;
@@ -13,24 +14,27 @@ export class Tour {
   @Column()
   title: string;
 
-  @Column({ nullable: true })
+  @Column({ unique: true })
   slug: string;
 
-  @Column("text", { nullable: true })
+  @Column("text")
   description: string;
 
-  @Column({ nullable: true })
+  @Column()
   location: string;
 
-  @Column("int", { default: 0 })
+  @Column()
+  duration: string; // Ví dụ: "3N2D"
+
+  @Column()
   price: number;
 
-  @Column({ nullable: true })
-  duration: string;
-
-  @Column({ nullable: true })
+  @Column()
   image: string;
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

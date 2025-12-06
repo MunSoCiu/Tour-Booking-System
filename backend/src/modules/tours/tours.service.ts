@@ -7,36 +7,53 @@ import { Tour } from "./tour.entity";
 export class ToursService {
   constructor(@InjectRepository(Tour) private repo: Repository<Tour>) {}
 
-  async findAll(q?: any) {
-    // q: { search, minPrice, maxPrice, location, page, limit }
-    const page = +(q?.page || 1);
-    const limit = +(q?.limit || 12);
+  // GET ALL + FILTER
+  async findAll(q: any) {
+    const page = Number(q.page) || 1;
+    const limit = Number(q.limit) || 50;
+
     const where: any = {};
-    if (q?.search) where.title = Like(`%${q.search}%`);
-    if (q?.location) where.location = q.location;
+
+    if (q.search) {
+      where.title = Like(`%${q.search}%`);
+    }
+
+    if (q.location) {
+      where.location = Like(`%${q.location}%`);
+    }
+
+    // FILTER DAYS → example: 3 = match "3N%"
+    if (q?.days) {
+      const day = Number(q.days);
+
+      where.duration = Like(`${day}N%`);
+    }
+
     const [items, total] = await this.repo.findAndCount({
       where,
+      order: { createdAt: "DESC" },
       take: limit,
       skip: (page - 1) * limit,
-      order: { createdAt: "DESC" },
     });
+
     return { items, total, page, limit };
   }
 
+  // GET ONE BY ID
   findOne(id: string) {
-    return this.repo.findOneBy({ id });
+    return this.repo.findOne({ where: { id } });
   }
 
-  create(payload: Partial<Tour>) {
-    const t = this.repo.create(payload);
-    return this.repo.save(t);
-  }
+  // GET DAYS LIST
+  async getDaysList() {
+    const tours = await this.repo.find();
+    const days = new Set<number>();
 
-  update(id: string, payload: Partial<Tour>) {
-    return this.repo.update(id, payload);
-  }
+    tours.forEach((t) => {
+      const match = t.duration.match(/^(\d+)N/);
+      if (match) days.add(Number(match[1]));
+    });
 
-  remove(id: string) {
-    return this.repo.delete(id);
+    return Array.from(days).sort((a, b) => a - b);
   }
 }

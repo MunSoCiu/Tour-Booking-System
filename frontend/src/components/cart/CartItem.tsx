@@ -12,6 +12,8 @@ export default function CartItem({
   guests,
   price,
   quantity: initialQty,
+  onQuantityChange,
+  onRemove,
 }: {
   image: string;
   title: string;
@@ -19,11 +21,23 @@ export default function CartItem({
   guests: string;
   price: number;
   quantity: number;
+  onQuantityChange?: (qty: number) => void;
+  onRemove?: () => void;
 }) {
   const [qty, setQty] = useState(initialQty);
 
-  const increase = () => setQty(qty + 1);
-  const decrease = () => qty > 1 && setQty(qty - 1);
+  const increase = () => {
+    const newQty = qty + 1;
+    setQty(newQty);
+    onQuantityChange?.(newQty); // 🔥 gọi callback ra Page
+  };
+
+  const decrease = () => {
+    if (qty <= 1) return;
+    const newQty = qty - 1;
+    setQty(newQty);
+    onQuantityChange?.(newQty); // 🔥 gọi callback ra Page
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-sm border p-4 flex gap-4">
@@ -62,7 +76,9 @@ export default function CartItem({
             >
               -
             </button>
+
             <span className="px-4">{qty}</span>
+
             <button
               onClick={increase}
               className="px-3 py-1 border-l hover:bg-gray-100"
@@ -79,7 +95,10 @@ export default function CartItem({
           {formatPrice(price)}
         </p>
 
-        <button className="text-gray-400 hover:text-red-500 transition">
+        <button
+          onClick={onRemove}
+          className="text-gray-400 hover:text-red-500 transition"
+        >
           <Trash2 className="w-5 h-5" />
         </button>
       </div>

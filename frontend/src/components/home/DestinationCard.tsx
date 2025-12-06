@@ -3,6 +3,7 @@ import Image from "next/image";
 interface Props {
   title: string;
   image: string;
+  key: string;
 }
 
 export default function DestinationCard({ title, image }: Props) {

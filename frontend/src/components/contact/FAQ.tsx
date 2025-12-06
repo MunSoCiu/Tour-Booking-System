@@ -1,29 +1,30 @@
-"use client";
+import FAQItem from "./FAQItem";
 
-import { ChevronDown } from "lucide-react";
-import { useState } from "react";
-
-export default function FAQ({ question }: { question: string }) {
-  const [open, setOpen] = useState(false);
+export default function FAQ() {
+  const questions = [
+    {
+      q: "Tôi có thể hủy tour sau khi đặt không?",
+      a: "Bạn có thể hủy tour trước ngày khởi hành 7 ngày để được hoàn tiền 100%. Sau thời gian này, chi phí hủy sẽ tùy vào từng tour.",
+    },
+    {
+      q: "Thanh toán có an toàn không?",
+      a: "GoTour sử dụng cổng thanh toán đạt chuẩn PCI-DSS, đảm bảo an toàn tuyệt đối cho mọi giao dịch.",
+    },
+    {
+      q: "Tôi cần hóa đơn VAT thì làm thế nào?",
+      a: "Bạn vui lòng cung cấp thông tin doanh nghiệp khi đặt tour hoặc liên hệ bộ phận hỗ trợ để được cấp hóa đơn.",
+    },
+    {
+      q: "Làm sao để được hỗ trợ nhanh nhất?",
+      a: "Bạn có thể gọi hotline 1900 1234 hoặc nhắn tin qua email hotro@gotour.com để được phản hồi trong 5 phút.",
+    },
+  ];
 
   return (
-    <div
-      className="bg-gray-100 rounded-lg px-4 py-3 cursor-pointer"
-      onClick={() => setOpen(!open)}
-    >
-      <div className="flex justify-between items-center">
-        <p>{question}</p>
-        <ChevronDown
-          className={`transition-transform ${open ? "rotate-180" : ""}`}
-        />
-      </div>
-
-      {open && (
-        <p className="mt-2 text-gray-600 text-sm">
-          Nội dung câu trả lời mẫu. Bạn có thể thay bằng nội dung thật từ
-          backend.
-        </p>
-      )}
+    <div className="space-y-3">
+      {questions.map((item, index) => (
+        <FAQItem key={index} question={item.q} answer={item.a} />
+      ))}
     </div>
   );
 }
