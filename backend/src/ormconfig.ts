@@ -8,7 +8,7 @@ import { Payment } from "./modules/payments/payment.entity";
 
 const config: DataSourceOptions = {
   type: "mysql",
-  host: process.env.DB_HOST || "localhost",
+  host: process.env.DB_HOST || "127.0.0.1",
   port: +(process.env.DB_PORT || 3306),
   username: process.env.DB_USER || "gotour",
   password: process.env.DB_PASS || "gotourpass",
