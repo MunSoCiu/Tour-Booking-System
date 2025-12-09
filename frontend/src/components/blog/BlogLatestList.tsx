@@ -2,79 +2,68 @@ import Image from "next/image";
 
 const latestPosts = [
   {
-    title: "10 mẹo “săn” vé máy bay giá rẻ không phải ai cũng biết",
+    slug: "san-ve-may-bay-gia-re",
+    title: "10 mẹo săn vé máy bay giá rẻ không phải ai cũng biết",
     date: "15 Tháng 7, 2020",
     author: "Lê Minh Cường",
-    cover: "/placeholder.png",
+    category: "Kinh nghiệm",
+    cover: "/images/blog1.jpg",
+    excerpt:
+      "Chia sẻ các mẹo đặt vé máy bay giá rẻ, tránh tăng giá, lựa chọn thời điểm vàng để book vé.",
   },
   {
+    slug: "kham-pha-ha-giang",
     title: "Hành trình khám phá Hà Giang – Vẻ đẹp hùng vĩ nơi địa đầu Tổ quốc",
     date: "12 Tháng 1, 2024",
     author: "Nguyễn Văn An",
-    cover: "/images/girl-portrait.jpg",
+    category: "Điểm đến",
+    cover: "/images/tours/1.jpg",
+    excerpt:
+      "Hà Giang thu hút du khách bởi núi đá hùng vĩ, cung đường Mã Pì Lèng và văn hóa bản địa.",
   },
   {
+    slug: "am-thuc-da-nang",
     title: "Top 5 món ăn nhất định phải thử khi đến Đà Nẵng",
     date: "10 Tháng 10, 2022",
     author: "Trịnh Thị Bích",
-    cover: "/placeholder.png",
+    category: "Ẩm thực",
+    cover: "/images/blog2.jpg",
+    excerpt:
+      "Đà Nẵng không chỉ nổi tiếng bởi cảnh đẹp mà còn có nền ẩm thực đường phố cực hấp dẫn.",
   },
   {
-    title: "Review chi tiết lịch trình du lịch Phú Quốc 3 ngày 2 đêm tự túc",
+    slug: "review-phu-quoc-3n2d",
+    title: "Review chi tiết lịch trình du lịch Phú Quốc 3N2Đ tự túc",
     date: "8 Tháng 12, 2025",
     author: "Phạm Thùy Dung",
-    cover: "/placeholder.png",
-  },
-  {
-    title: "Khám phá nét văn hóa độc đáo của người dân tộc Tây Nguyên",
-    date: "5 Tháng 7, 2024",
-    author: "Lê Thị Hồng",
-    cover: "/images/mountains.jpg",
-  },
-  {
-    title: "Lịch trình du lịch Sapa 4 ngày 3 đêm dành cho người mới",
-    date: "2 Tháng 8, 2024",
-    author: "Vũ Minh Tuấn",
-    cover: "/placeholder.png",
+    category: "Du lịch biển",
+    cover: "/images/phuquoc.jpg",
+    excerpt:
+      "Phú Quốc – thiên đường nghỉ dưỡng với biển xanh, resort đẹp và hải sản tươi ngon.",
   },
 ];
 
 export default function BlogLatestList() {
   return (
-    <div>
-      <h2 className="text-xl font-semibold mb-6">Bài viết mới nhất</h2>
+    <div className="p-5 bg-white shadow rounded-xl">
+      <h3 className="text-xl font-bold mb-4">Bài viết mới nhất</h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {latestPosts.map((post, i) => (
-          <div key={i} className="space-y-3">
-            {/* COVER */}
-            <div className="w-full h-56 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden">
-              {post.cover.endsWith("placeholder.png") ? (
-                <Image
-                  src="/icons/image-placeholder.svg"
-                  width={40}
-                  height={40}
-                  alt="placeholder"
-                />
-              ) : (
-                <Image
-                  src={post.cover}
-                  alt="cover"
-                  width={600}
-                  height={400}
-                  className="object-cover w-full h-full"
-                />
-              )}
-            </div>
-
-            {/* TITLE */}
-            <h3 className="font-semibold text-lg">{post.title}</h3>
-
-            {/* META INFO */}
-            <p className="text-sm text-gray-500">
-              Bởi {post.author} · {post.date}
-            </p>
-          </div>
+      <div className="space-y-4">
+        {latestPosts.map((post) => (
+          <a
+            key={post.slug}
+            href={`/blog/${post.slug}`}
+            className="flex items-center gap-4 hover:opacity-80 transition"
+          >
+            <Image
+              src={post.cover}
+              alt={post.title}
+              width={90}
+              height={60}
+              className="rounded-md object-cover cursor-pointer"
+            />
+            <p className="font-medium">{post.title}</p>
+          </a>
         ))}
       </div>
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { use } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Star, MapPin, ChevronRight } from "lucide-react";
@@ -12,10 +13,10 @@ import { formatPrice } from "@/lib/utils/formatPrice";
 export default function TourDetailPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
   const API = process.env.NEXT_PUBLIC_API_URL ?? "";
-  const { slug } = params;
+  const { slug } = use(params);
 
   const [tour, setTour] = useState<any | null>(null);
   const [testimonials, setTestimonials] = useState<any[]>([]);

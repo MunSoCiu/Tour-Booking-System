@@ -1114,8 +1114,7 @@ async function run() {
     "Silver Deal",
   ];
 
-  const tourEntities = TOURS.map((t, index) => {
-    // Default: no deal
+  const tourEntities: Tour[] = TOURS.map((t, index) => {
     let discount = 0;
     let discountPrice = t.price;
     let dealType: string | null = null;
@@ -1123,23 +1122,23 @@ async function run() {
     let dealEnd: Date | null = null;
 
     if (DEAL_TOUR_INDEXES.includes(index)) {
-      // choose a fixed discount for seeding; random here only at seed-time (DB will store it)
-      discount = Math.floor(Math.random() * 6) + 10; // 10..15%
+      discount = Math.floor(Math.random() * 6) + 10; // 10–15%
       discountPrice = Math.round(t.price - (t.price * discount) / 100);
       dealType = DEAL_TYPES[index % DEAL_TYPES.length];
       dealStart = new Date();
-      // expire after 7 days for seed (adjust as you want)
       dealEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     }
 
-    return tourRepo.create({
+    const entity = tourRepo.create({
       ...t,
       discount,
       discountPrice,
       dealType,
       dealStart,
       dealEnd,
-    } as any);
+    });
+
+    return entity;
   });
 
   const savedTours = await tourRepo.save(tourEntities);

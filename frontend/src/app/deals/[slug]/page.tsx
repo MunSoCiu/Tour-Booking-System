@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { use, useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Star, MapPin, ChevronRight } from "lucide-react";
@@ -12,18 +12,20 @@ import { formatPrice } from "@/lib/utils/formatPrice";
 export default function DealDetailPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const API = process.env.NEXT_PUBLIC_API_URL ?? "";
-  const { slug } = params;
+  const { slug } = use(params);
 
+  const API = process.env.NEXT_PUBLIC_API_URL ?? "";
   const [tour, setTour] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [date, setDate] = useState("");
   const [guests, setGuests] = useState(2);
 
-  /* FETCH TOUR */
+  /* ============================
+        FETCH TOUR
+  ============================ */
   useEffect(() => {
     if (!API || !slug) return;
 
@@ -39,14 +41,16 @@ export default function DealDetailPage({
       });
   }, [API, slug]);
 
-  /* PRICE CALCULATION */
+  /* ============================
+        PRICE CALCULATION
+  ============================ */
   const discounted = useMemo(() => {
     if (!tour || !tour.discount) return null;
 
     const newPrice = tour.price - (tour.price * tour.discount) / 100;
 
     return {
-      oldPrice: tour.price,
+      oldPrice: Number(tour.price),
       newPrice: Math.round(newPrice),
       discount: tour.discount,
     };
@@ -61,6 +65,9 @@ export default function DealDetailPage({
       </div>
     );
 
+  /* ============================
+        SAMPLE ITINERARY
+  ============================ */
   const itinerary = [
     {
       day: "Ngày 1",
@@ -83,7 +90,7 @@ export default function DealDetailPage({
 
   return (
     <div className="w-full bg-gray-50 pb-20">
-      {/* Breadcrumb */}
+      {/* ========== BREADCRUMB ========== */}
       <div className="max-w-6xl mx-auto px-4 py-5 text-sm text-gray-500 flex gap-2 items-center">
         <Link href="/" className="hover:underline">
           Trang chủ
@@ -96,7 +103,7 @@ export default function DealDetailPage({
         <span className="text-gray-700">{tour.title}</span>
       </div>
 
-      {/* Title */}
+      {/* ========== TOUR TITLE ========== */}
       <div className="max-w-6xl mx-auto px-4">
         <h1 className="text-3xl font-bold">{tour.title}</h1>
 
@@ -114,13 +121,13 @@ export default function DealDetailPage({
         </div>
       </div>
 
-      {/* Gallery + Sidebar */}
+      {/* ========== GALLERY + PRICE BOX ========== */}
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 px-4 mt-6">
         <div className="md:col-span-2">
           <PhotoGallery images={[tour.image]} title={tour.title} />
         </div>
 
-        {/* PRICE BOX */}
+        {/* PRICE SECTION */}
         <div className="bg-white shadow-lg p-5 rounded-xl border">
           <div className="text-center mb-5">
             <span className="text-red-600 font-bold text-lg">
@@ -129,10 +136,10 @@ export default function DealDetailPage({
 
             <div className="mt-2">
               <span className="line-through text-gray-500 text-sm">
-                {formatPrice(discounted?.oldPrice ?? 0)}đ
+                {formatPrice(discounted?.oldPrice ?? 0)} đ
               </span>
               <div className="text-3xl font-bold text-blue-600 mt-1">
-                {formatPrice(discounted?.newPrice ?? 0)}đ
+                {formatPrice(discounted?.newPrice ?? 0)} đ
               </div>
             </div>
           </div>
@@ -148,11 +155,12 @@ export default function DealDetailPage({
         </div>
       </div>
 
-      {/* Overview */}
+      {/* ========== DESCRIPTION ========== */}
       <div className="max-w-6xl mx-auto px-4 mt-10">
         <h2 className="text-xl font-semibold">Mô tả tour</h2>
         <p className="text-gray-700 leading-relaxed mt-2">{tour.description}</p>
 
+        {/* ========== ITINERARY ========== */}
         <h2 className="text-xl font-semibold mt-10">Lịch trình chi tiết</h2>
         <div className="space-y-4 mt-4">
           {itinerary.map((it, i) => (

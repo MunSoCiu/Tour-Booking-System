@@ -3,35 +3,58 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import PromotionCard from "@/components/deals/PromotionCard";
+import { formatPrice } from "@/lib/utils/formatPrice";
 
 export default function DealsPage() {
-  const API = process.env.NEXT_PUBLIC_API_URL;
+  const API = process.env.NEXT_PUBLIC_API_URL ?? "";
   const [tours, setTours] = useState([]);
   const [filter, setFilter] = useState("all");
 
-  /* ============= LOAD DEAL TOURS ============= */
+  /* ============================
+        MAP FILTER → BACKEND
+  ============================ */
+  const FILTER_MAP: Record<string, string | null> = {
+    all: null,
+    seasonal: "Summer Sale",
+    flash: "Flash Sale",
+    vip: "VIP",
+    early: "Early",
+    gold: "Golden Deal",
+    silver: "Silver Deal",
+    diamond: "Diamond Deal",
+  };
+
+  /* ============================
+        LOAD DEALS
+  ============================ */
   const loadDeals = () => {
     if (!API) return;
 
     let url = `${API}/tours`;
 
-    if (filter !== "all") {
-      url += `?dealType=${filter}`;
+    const dealType = FILTER_MAP[filter];
+    if (dealType) {
+      url += `?dealType=${dealType}`;
     }
 
     fetch(url)
       .then((r) => r.json())
       .then((data) => {
         const list = Array.isArray(data) ? data : data.items ?? [];
+
+        // chỉ lấy tour có discount > 0
         setTours(list.filter((t) => t.discount > 0));
-      });
+      })
+      .catch(() => setTours([]));
   };
 
   useEffect(() => {
     loadDeals();
   }, [filter]);
 
-  /* LABELS FOR FILTER BUTTONS */
+  /* ============================
+          FILTER BUTTONS
+  ============================ */
   const filters = [
     { key: "all", label: "Tất Cả" },
     { key: "seasonal", label: "Tour theo mùa" },
@@ -45,7 +68,9 @@ export default function DealsPage() {
 
   return (
     <div className="w-full">
-      {/* HERO */}
+      {/* ============================
+              HERO BANNER
+      ============================ */}
       <section className="relative h-[360px] w-full">
         <Image
           src="/images/deals.jpg"
@@ -64,9 +89,11 @@ export default function DealsPage() {
         </div>
       </section>
 
-      {/* FILTERS */}
+      {/* ============================
+                  FILTERS
+      ============================ */}
       <section className="py-12 px-4 max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
           <h2 className="text-xl font-semibold">Tất Cả Khuyến Mãi</h2>
 
           <div className="flex gap-3 flex-wrap">
@@ -86,9 +113,11 @@ export default function DealsPage() {
           </div>
         </div>
 
-        {/* DEAL GRID */}
+        {/* ============================
+                 DEAL GRID
+        ============================ */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tours.map((t) => (
+          {tours.map((t: any) => (
             <PromotionCard
               key={t.id}
               tag={`-${t.discount}%`}
@@ -99,8 +128,8 @@ export default function DealsPage() {
                 0,
                 10
               )}`}
-              oldPrice={t.price + "đ"}
-              price={Math.round(t.price - (t.price * t.discount) / 100) + "đ"}
+              oldPrice={`${formatPrice(t.price)} đ`}
+              price={`${formatPrice(t.discountPrice)} đ`}
               image={t.image}
               slug={t.slug}
             />

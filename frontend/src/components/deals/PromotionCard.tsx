@@ -11,6 +11,7 @@ export default function PromotionCard({
   price,
   image,
   action,
+  slug,
 }: {
   tag: string;
   tagColor: string;
@@ -21,6 +22,7 @@ export default function PromotionCard({
   price: string;
   image: string;
   action?: string;
+  slug: string;
 }) {
   return (
     <div className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
@@ -53,7 +55,7 @@ export default function PromotionCard({
         {/* BUTTON / ACTION */}
         <div className="pt-2">
           <Link
-            href="#"
+            href={`/deals/${slug}`}
             className={`px-4 py-2 rounded-lg text-sm font-medium ${
               action
                 ? "bg-blue-600 text-white hover:bg-blue-700"

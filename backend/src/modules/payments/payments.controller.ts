@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Get, Param } from "@nestjs/common";
 import { PaymentsService } from "./payments.service";
 
-@Controller("api/payments")
+@Controller("payments")
 export class PaymentsController {
   constructor(private svc: PaymentsService) {}
 

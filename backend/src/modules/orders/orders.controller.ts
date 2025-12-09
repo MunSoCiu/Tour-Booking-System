@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Get, Param, Put } from "@nestjs/common";
 import { OrdersService } from "./orders.service";
 
-@Controller("api/orders")
+@Controller("orders")
 export class OrdersController {
   constructor(private svc: OrdersService) {}
 
