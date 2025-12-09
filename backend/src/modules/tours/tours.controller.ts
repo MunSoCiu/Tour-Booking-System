@@ -17,9 +17,9 @@ export class ToursController {
     return this.svc.getDaysList();
   }
 
-  // GET ONE
-  @Get(":id")
-  getOne(@Param("id") id: string) {
-    return this.svc.findOne(id);
+  // GET ONE BY SLUG
+  @Get("slug/:slug")
+  getBySlug(@Param("slug") slug: string) {
+    return this.svc.findBySlug(slug);
   }
 }

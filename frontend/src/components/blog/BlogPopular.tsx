@@ -16,6 +16,21 @@ const popular = [
     author: "Phạm Thùy Dung",
     cover: "/placeholder.png",
   },
+  {
+    title: "Top 7 bãi biển đẹp nhất Việt Nam bạn không thể bỏ lỡ",
+    author: "Trịnh Thị Bích",
+    cover: "/images/mountains.jpg",
+  },
+  {
+    title: "Khám phá ẩm thực đường phố Sài Gòn – Thiên đường ăn vặt",
+    author: "Lê Thị Hồng",
+    cover: "/placeholder.png",
+  },
+  {
+    title: "Hướng dẫn du lịch Ninh Bình tự túc chi tiết từ A đến Z",
+    author: "Vũ Minh Tuấn",
+    cover: "/placeholder.png",
+  },
 ];
 
 export default function BlogPopular() {

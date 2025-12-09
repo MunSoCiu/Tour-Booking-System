@@ -1,14 +1,51 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import PromotionCard from "@/components/deals/PromotionCard";
 
 export default function DealsPage() {
+  const API = process.env.NEXT_PUBLIC_API_URL;
+  const [tours, setTours] = useState([]);
+  const [filter, setFilter] = useState("all");
+
+  /* ============= LOAD DEAL TOURS ============= */
+  const loadDeals = () => {
+    if (!API) return;
+
+    let url = `${API}/tours`;
+
+    if (filter !== "all") {
+      url += `?dealType=${filter}`;
+    }
+
+    fetch(url)
+      .then((r) => r.json())
+      .then((data) => {
+        const list = Array.isArray(data) ? data : data.items ?? [];
+        setTours(list.filter((t) => t.discount > 0));
+      });
+  };
+
+  useEffect(() => {
+    loadDeals();
+  }, [filter]);
+
+  /* LABELS FOR FILTER BUTTONS */
+  const filters = [
+    { key: "all", label: "Tất Cả" },
+    { key: "seasonal", label: "Tour theo mùa" },
+    { key: "flash", label: "Flash Sale" },
+    { key: "vip", label: "Khách hàng thân thiết" },
+    { key: "early", label: "Đặt sớm" },
+    { key: "gold", label: "Gói vàng" },
+    { key: "silver", label: "Gói bạc" },
+    { key: "diamond", label: "Gói kim cương" },
+  ];
+
   return (
     <div className="w-full">
-      {/* -------------------------------------------- */}
-      {/* HERO BANNER */}
-      {/* -------------------------------------------- */}
+      {/* HERO */}
       <section className="relative h-[360px] w-full">
         <Image
           src="/images/deals.jpg"
@@ -22,106 +59,58 @@ export default function DealsPage() {
             Săn Ưu Đãi Vàng, Du Lịch Thả Ga
           </h1>
           <p className="text-white mt-3 text-lg opacity-90 max-w-2xl">
-            Khám phá các chương trình khuyến mãi hấp dẫn nhất và lên kế hoạch
-            cho chuyến đi trong mơ của bạn với chi phí tiết kiệm bất ngờ!
+            Khám phá các chương trình khuyến mãi hấp dẫn nhất.
           </p>
         </div>
       </section>
 
-      {/* -------------------------------------------- */}
       {/* FILTERS */}
-      {/* -------------------------------------------- */}
       <section className="py-12 px-4 max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold">Tất Cả Khuyến Mãi</h2>
 
-          <div className="flex gap-3">
-            <button className="px-4 py-2 rounded-full bg-blue-600 text-white font-medium">
-              Tất Cả
-            </button>
-            <button className="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition">
-              Tour theo mùa
-            </button>
-            <button className="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition">
-              Flash Sale
-            </button>
-            <button className="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition">
-              Khách hàng thân thiết
-            </button>
+          <div className="flex gap-3 flex-wrap">
+            {filters.map((f) => (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key)}
+                className={`px-4 py-2 rounded-full border transition ${
+                  filter === f.key
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-gray-100 hover:bg-gray-200 border-gray-300"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* -------------------------------------------- */}
-        {/* PROMOTION GRID */}
-        {/* -------------------------------------------- */}
+        {/* DEAL GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <PromotionCard
-            tag="-30%"
-            tagColor="bg-red-500"
-            title="Flash Sale: Khám Phá Châu Á 5N4Đ"
-            desc="Ưu đãi siêu phong phú cho chuyến du hành văn hóa và ẩm thực tại các thành phố nổi tiếng."
-            valid="15/07 - 20/7/2024"
-            oldPrice="7.000.000đ"
-            price="4.900.000đ"
-            image="/images/asia-tour.jpg"
-            action="Đặt Ngay"
-          />
+          {tours.map((t) => (
+            <PromotionCard
+              key={t.id}
+              tag={`-${t.discount}%`}
+              tagColor="bg-red-600"
+              title={t.title}
+              desc={t.description}
+              valid={`${t.dealStart?.substring(0, 10)} → ${t.dealEnd?.substring(
+                0,
+                10
+              )}`}
+              oldPrice={t.price + "đ"}
+              price={Math.round(t.price - (t.price * t.discount) / 100) + "đ"}
+              image={t.image}
+              slug={t.slug}
+            />
+          ))}
 
-          <PromotionCard
-            tag="Deal Mùa Hè"
-            tagColor="bg-green-600"
-            title="Chào Hè Sôi Động Tại Sapa"
-            desc="Tận hưởng không khí trong lành và vẻ đẹp hùng vĩ của ruộng bậc thang mùa nước đổ."
-            valid="01/06 - 30/08/2024"
-            oldPrice="4.500.000đ"
-            price="3.800.000đ"
-            image="/images/sapa.jpg"
-          />
-
-          <PromotionCard
-            tag="Ưu Đãi VIP"
-            tagColor="bg-purple-500"
-            title="Trí Ân Khách Hàng Thân Thiết"
-            desc="Giảm giá đặc quyền cho nhóm khách VIP khi đặt tour Châu Âu 7 ngày."
-            valid="Đến hết 31/12/2024"
-            oldPrice="15.000.000đ"
-            price="12.000.000đ"
-            image="/images/europe-tour.jpg"
-          />
-
-          <PromotionCard
-            tag="-20%"
-            tagColor="bg-yellow-400"
-            title="Giảm Giá Tour Vịnh Hạ Long"
-            desc="Khám phá kỳ quan thiên nhiên thế giới với du thuyền sang trọng."
-            valid="01/09 - 30/10/2024"
-            oldPrice="3.500.000đ"
-            price="2.800.000đ"
-            image="/images/halong.jpg"
-          />
-
-          <PromotionCard
-            tag="Gói Vàng"
-            tagColor="bg-yellow-500"
-            title="Flash Sale Cuối Tuần: Vi Vu Đà Nẵng"
-            desc="Chỉ 48h để săn tour Đà Nẵng – Hội An 3N2Đ với giá cực sốc."
-            valid="19/07 - 21/07/2024"
-            oldPrice="4.000.000đ"
-            price="2.999.000đ"
-            image="/images/danang.jpg"
-            action="Đặt Ngay"
-          />
-
-          <PromotionCard
-            tag="Đặt Sớm"
-            tagColor="bg-blue-600"
-            title="Ưu Đãi Đặt Sớm Tour Sa Mạc"
-            desc="Khám phá trái tim hoang mạc với chuyến phiêu lưu độc đáo."
-            valid="Đặt trước 30/09/2024"
-            oldPrice="9.000.000đ"
-            price="7.500.000đ"
-            image="/images/desert-tour.jpg"
-          />
+          {tours.length === 0 && (
+            <div className="col-span-3 text-center text-gray-500 py-10">
+              Không có ưu đãi nào trong mục này.
+            </div>
+          )}
         </div>
       </section>
     </div>

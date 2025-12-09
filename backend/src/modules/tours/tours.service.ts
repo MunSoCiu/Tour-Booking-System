@@ -29,6 +29,10 @@ export class ToursService {
       where.duration = Like(`${day}N%`);
     }
 
+    if (q.dealType) {
+      where.dealType = q.dealType;
+    }
+
     const [items, total] = await this.repo.findAndCount({
       where,
       order: { createdAt: "DESC" },
@@ -37,11 +41,6 @@ export class ToursService {
     });
 
     return { items, total, page, limit };
-  }
-
-  // GET ONE BY ID
-  findOne(id: string) {
-    return this.repo.findOne({ where: { id } });
   }
 
   // GET DAYS LIST
@@ -55,5 +54,10 @@ export class ToursService {
     });
 
     return Array.from(days).sort((a, b) => a - b);
+  }
+
+  // GET ONE BY SLUG
+  findBySlug(slug: string) {
+    return this.repo.findOne({ where: { slug } });
   }
 }

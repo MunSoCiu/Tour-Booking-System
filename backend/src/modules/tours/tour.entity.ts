@@ -24,13 +24,41 @@ export class Tour {
   location: string;
 
   @Column()
-  duration: string; // Ví dụ: "3N2D"
+  duration: string;
 
   @Column()
   price: number;
 
-  @Column()
+  @Column({ nullable: true })
   image: string;
+
+  @Column("simple-array", { nullable: true })
+  gallery: string[];
+
+  @Column("json", { nullable: true })
+  itinerary: {
+    day: string;
+    title: string;
+    description: string;
+  }[];
+
+  @Column({ type: "float", default: 0 })
+  rating: number;
+
+  @Column({ type: "int", default: 0 })
+  discount: number;
+
+  @Column({ type: "int", default: 0 })
+  discountPrice: number;
+
+  @Column({ type: "varchar", length: 50, nullable: true })
+  dealType: string | null;
+
+  @Column({ type: "datetime", nullable: true })
+  dealStart: Date | null;
+
+  @Column({ type: "datetime", nullable: true })
+  dealEnd: Date | null;
 
   @CreateDateColumn()
   createdAt: Date;

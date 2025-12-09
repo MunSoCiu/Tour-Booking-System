@@ -3,26 +3,38 @@ import Image from "next/image";
 const latestPosts = [
   {
     title: "10 mẹo “săn” vé máy bay giá rẻ không phải ai cũng biết",
-    date: "15 Tháng 7, 2024",
+    date: "15 Tháng 7, 2020",
     author: "Lê Minh Cường",
     cover: "/placeholder.png",
   },
   {
     title: "Hành trình khám phá Hà Giang – Vẻ đẹp hùng vĩ nơi địa đầu Tổ quốc",
-    date: "12 Tháng 7, 2024",
+    date: "12 Tháng 1, 2024",
     author: "Nguyễn Văn An",
     cover: "/images/girl-portrait.jpg",
   },
   {
     title: "Top 5 món ăn nhất định phải thử khi đến Đà Nẵng",
-    date: "10 Tháng 7, 2024",
+    date: "10 Tháng 10, 2022",
     author: "Trịnh Thị Bích",
     cover: "/placeholder.png",
   },
   {
     title: "Review chi tiết lịch trình du lịch Phú Quốc 3 ngày 2 đêm tự túc",
-    date: "8 Tháng 7, 2024",
+    date: "8 Tháng 12, 2025",
     author: "Phạm Thùy Dung",
+    cover: "/placeholder.png",
+  },
+  {
+    title: "Khám phá nét văn hóa độc đáo của người dân tộc Tây Nguyên",
+    date: "5 Tháng 7, 2024",
+    author: "Lê Thị Hồng",
+    cover: "/images/mountains.jpg",
+  },
+  {
+    title: "Lịch trình du lịch Sapa 4 ngày 3 đêm dành cho người mới",
+    date: "2 Tháng 8, 2024",
+    author: "Vũ Minh Tuấn",
     cover: "/placeholder.png",
   },
 ];

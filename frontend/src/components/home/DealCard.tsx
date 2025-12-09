@@ -1,50 +1,69 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { formatPrice } from "@/lib/utils/formatPrice";
+
+interface DealProps {
+  title: string;
+  desc?: string;
+  price: number;
+  oldPrice: number;
+  image: string;
+  slug: string;
+  discount: number;
+}
 
 export default function DealCard({
-  tag,
   title,
-  oldPrice,
+  desc = "",
   price,
-  desc,
+  oldPrice,
   image,
-  key,
-}: {
-  tag: string;
-  title: string;
-  oldPrice?: string;
-  price: string;
-  desc: string;
-  image: string;
-  key: string;
-}) {
+  slug,
+  discount,
+}: DealProps) {
   return (
-    <div className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
-      <div className="relative h-52">
-        <Image src={image} alt={title} fill className="object-cover" />
-        <span className="absolute top-3 left-3 bg-yellow-400 px-3 py-1 rounded-lg text-sm font-bold">
-          {tag}
+    <div className="rounded-xl shadow-md bg-white hover:shadow-lg transition p-4 flex flex-col h-full">
+      {/* IMAGE */}
+      <div className="relative h-52 w-full">
+        <Image
+          src={image || "/images/default.jpg"}
+          fill
+          alt={title}
+          className="object-cover rounded-xl"
+        />
+
+        <span className="absolute top-3 left-3 bg-red-600 text-white text-xs px-2 py-1 rounded-md">
+          -{discount}%
         </span>
       </div>
 
-      <div className="p-4 space-y-2">
-        <h3 className="font-semibold">{title}</h3>
-        <p className="text-sm text-gray-600">{desc}</p>
+      {/* TITLE */}
+      <h3 className="font-semibold text-lg mt-3 min-h-[48px] line-clamp-2">
+        {title}
+      </h3>
 
-        <div className="mt-3">
-          {oldPrice && (
-            <p className="text-gray-400 line-through text-sm">{oldPrice}</p>
-          )}
-          <p className="text-blue-600 text-lg font-bold">{price}</p>
-        </div>
+      {/* DESCRIPTION */}
+      <p className="text-gray-600 text-sm line-clamp-3 mt-1 min-h-[60px]">
+        {desc}
+      </p>
 
-        <Link
-          href="#"
-          className="mt-3 inline-block w-full text-center bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
-        >
-          Xem Chi Tiết
-        </Link>
+      {/* PRICES */}
+      <div className="mt-3">
+        <p className="text-blue-600 font-bold text-xl">{formatPrice(price)}đ</p>
+
+        <p className="line-through text-gray-400 text-sm">
+          {formatPrice(oldPrice)}đ
+        </p>
       </div>
+
+      {/* BUTTON */}
+      <Link
+        href={`/deals/${slug}`}
+        className="mt-auto bg-blue-600 text-white text-center py-2 rounded-lg font-medium hover:bg-blue-700 transition"
+      >
+        Xem chi tiết
+      </Link>
     </div>
   );
 }

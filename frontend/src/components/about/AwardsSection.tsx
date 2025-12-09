@@ -1,24 +1,34 @@
 export default function AwardsSection() {
   const awards = [
     {
-      year: 2023,
+      year: 2020,
       title: "Top 10 Website Du Lịch",
       org: "Do Hiệp hội Du lịch Việt Nam bình chọn",
     },
     {
-      year: 2022,
+      year: 2021,
       title: "Thương Hiệu Truyền Cảm Hứng",
       org: "Asia Pacific Enterprise Awards",
     },
     {
-      year: 2021,
+      year: 2022,
       title: "Dịch Vụ Khách Hàng Xuất Sắc",
       org: "Customer Service Institute",
     },
     {
-      year: 2020,
+      year: 2023,
       title: "Startup Công Nghệ Du Lịch",
       org: "Giải thưởng Techfest Vietnam",
+    },
+    {
+      year: 2024,
+      title: "Nền Tảng Du Lịch Sáng Tạo",
+      org: "Giải thưởng Sáng tạo Việt Nam",
+    },
+    {
+      year: 2025,
+      title: "Doanh Nghiệp Phát Triển Bền Vững",
+      org: "Giải thưởng Phát triển Bền vững Việt Nam",
     },
   ];
 

@@ -55,7 +55,6 @@ export default function TourListPage() {
         return false;
       }
 
-      // 3. DAYS (match 3N → 3N1Đ / 3N2Đ / ...)
       if (filters.days) {
         const tourDays = Number(tour.duration.split("N")[0]);
         if (tourDays !== filters.days) return false;
