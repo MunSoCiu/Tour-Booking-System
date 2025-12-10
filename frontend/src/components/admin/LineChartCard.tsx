@@ -1,42 +1,35 @@
 "use client";
 
 import {
-  LineChart,
   Line,
+  LineChart,
   XAxis,
   YAxis,
+  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
 
-const data = [
-  { month: "Jan", value: 200 },
-  { month: "Feb", value: 240 },
-  { month: "Mar", value: 300 },
-  { month: "Apr", value: 350 },
-  { month: "May", value: 420 },
-  { month: "Jun", value: 500 },
-  { month: "Jul", value: 590 },
-  { month: "Aug", value: 700 },
-];
+export default function LineChartCard({ chartData }) {
+  const data =
+    chartData && chartData.months
+      ? chartData.months.map((month: string, index: number) => ({
+          month,
+          revenue: chartData.revenues[index],
+        }))
+      : [];
 
-export default function LineChartCard() {
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border h-[360px]">
-      <h3 className="font-semibold mb-4">Thống kê doanh thu</h3>
+    <div className="bg-white p-4 rounded-lg shadow">
+      <h2 className="text-lg font-bold mb-2">Revenue Analytics</h2>
 
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height={260}>
         <LineChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="month" />
           <YAxis />
           <Tooltip />
-          <Line
-            type="monotone"
-            dataKey="value"
-            stroke="#2563eb"
-            strokeWidth={3}
-            dot
-          />
+          <Line type="monotone" dataKey="revenue" stroke="#4f46e5" />
         </LineChart>
       </ResponsiveContainer>
     </div>

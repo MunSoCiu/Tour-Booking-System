@@ -3,15 +3,14 @@ import { AuthService } from "./auth.service";
 
 @Controller("auth")
 export class AuthController {
-  constructor(private svc: AuthService) {}
+  constructor(private authService: AuthService) {}
 
   @Post("register")
   async register(
     @Body() body: { email: string; password: string; fullName?: string }
   ) {
     try {
-      const user = await this.svc.register(body);
-      return { ok: true, user };
+      return await this.authService.register(body);
     } catch (err) {
       throw new BadRequestException(err.message);
     }
@@ -19,8 +18,10 @@ export class AuthController {
 
   @Post("login")
   async login(@Body() body: { email: string; password: string }) {
-    const user = await this.svc.validateUser(body.email, body.password);
+    const user = await this.authService.validateUser(body.email, body.password);
+
     if (!user) throw new BadRequestException("Invalid credentials");
-    return this.svc.login(user);
+
+    return this.authService.login(user);
   }
 }

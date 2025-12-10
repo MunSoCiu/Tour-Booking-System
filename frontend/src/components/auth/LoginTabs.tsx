@@ -1,35 +1,35 @@
 "use client";
 
+import Link from "next/link";
+
 export default function LoginTabs({
-  tab,
-  setTab,
+  active,
 }: {
-  tab: "login" | "register";
-  setTab: (tab: "login" | "register") => void;
+  active: "login" | "register";
 }) {
   return (
     <div className="flex border-b">
-      <button
+      <Link
+        href="/login"
         className={`flex-1 py-3 text-center font-medium ${
-          tab === "login"
+          active === "login"
             ? "text-blue-600 border-b-2 border-blue-600"
             : "text-gray-500"
         }`}
-        onClick={() => setTab("login")}
       >
         Đăng nhập
-      </button>
+      </Link>
 
-      <button
+      <Link
+        href="/register"
         className={`flex-1 py-3 text-center font-medium ${
-          tab === "register"
+          active === "register"
             ? "text-blue-600 border-b-2 border-blue-600"
             : "text-gray-500"
         }`}
-        onClick={() => setTab("register")}
       >
         Đăng ký
-      </button>
+      </Link>
     </div>
   );
 }

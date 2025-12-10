@@ -1,6 +1,5 @@
 "use client";
-
-export default function StatCard({ stats }: { stats: any }) {
+export default function StatsGrid({ stats }) {
   if (!stats) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -17,15 +16,12 @@ export default function StatCard({ stats }: { stats: any }) {
       <Card label="Users" value={stats.totalUsers} />
       <Card label="Tours" value={stats.totalTours} />
       <Card label="Orders" value={stats.totalOrders} />
-      <Card
-        label="Revenue"
-        value={stats.totalRevenue.toLocaleString("vi-VN") + " đ"}
-      />
+      <Card label="Revenue" value={stats.totalRevenue.toLocaleString()} />
     </div>
   );
 }
 
-function Card({ label, value }: { label: string; value: any }) {
+function Card({ label, value }) {
   return (
     <div className="p-4 bg-white shadow rounded-lg">
       <p className="text-gray-500">{label}</p>

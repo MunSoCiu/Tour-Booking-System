@@ -1,32 +1,45 @@
-export default function TopToursCard() {
-  const tours = [
-    { name: "Vịnh Hạ Long", count: 320 },
-    { name: "Đà Nẵng – Hội An", count: 298 },
-    { name: "Phú Quốc", count: 215 },
-    { name: "Sapa", count: 180 },
-    { name: "Miền Tây", count: 152 },
-  ];
+"use client";
+
+export default function TopToursCard({ tours }: { tours: any }) {
+  if (!tours) {
+    return (
+      <div className="bg-white p-4 rounded-lg shadow">
+        <h2 className="text-lg font-bold mb-3">Top Selling Tours</h2>
+        <SkeletonList />
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border">
-      <h3 className="font-semibold mb-4">Top Tour phổ biến</h3>
+    <div className="bg-white p-4 rounded-lg shadow">
+      <h2 className="text-lg font-bold mb-4">Top Selling Tours</h2>
 
-      <div className="space-y-4">
-        {tours.map((tour, i) => (
-          <div key={i}>
-            <p className="font-medium">
-              {i + 1}. {tour.name}
-            </p>
-            <div className="w-full bg-gray-200 h-2 rounded-full mt-1">
-              <div
-                className="bg-blue-600 h-2 rounded-full"
-                style={{ width: `${(tour.count / 350) * 100}%` }}
-              />
-            </div>
-            <p className="text-sm text-gray-600 mt-1">{tour.count}</p>
-          </div>
+      <ul className="space-y-2">
+        {tours.map((t: any, i: number) => (
+          <li
+            key={i}
+            className="flex justify-between items-center border-b pb-2 text-gray-700"
+          >
+            <span className="truncate">
+              {i + 1}. {t.title}
+            </span>
+            <span className="font-semibold text-blue-600">{t.sold}</span>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
+  );
+}
+
+function SkeletonList() {
+  return (
+    <ul className="space-y-2">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <li key={i} className="flex justify-between animate-pulse">
+          <div className="h-3 w-2/3 bg-gray-200 rounded"></div>
+          <div className="h-3 w-10 bg-gray-300 rounded"></div>
+        </li>
+      ))}
+    </ul>
   );
 }

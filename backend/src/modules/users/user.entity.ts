@@ -22,8 +22,14 @@ export class User {
   @Column({ nullable: true })
   phone: string;
 
-  @Column({ default: "user" })
-  role: string;
+  @Column({
+    type: "varchar",
+    default: "user",
+  })
+  role: "user" | "admin";
+
+  @Column({ default: "active" })
+  status: "active" | "banned";
 
   @CreateDateColumn()
   createdAt: Date;

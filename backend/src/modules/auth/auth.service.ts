@@ -7,21 +7,25 @@ import { JwtService } from "@nestjs/jwt";
 export class AuthService {
   constructor(private users: UsersService, private jwt: JwtService) {}
 
+  /* =====================================================
+                        VALIDATE USER
+     ===================================================== */
   async validateUser(email: string, pass: string) {
     const user = await this.users.findByEmail(email);
     if (!user) return null;
+
     const matched = await bcrypt.compare(pass, user.password);
-    if (matched) {
-      const { password, ...rest } = user;
-      return rest;
-    }
-    return null;
+    if (!matched) return null;
+
+    const { password, ...safeUser } = user;
+    return safeUser;
   }
 
   async login(user: any) {
     const payload = { sub: user.id, email: user.email, role: user.role };
+
     return {
-      access_token: this.jwt.sign(payload),
+      token: this.jwt.sign(payload),
       user,
     };
   }
@@ -32,14 +36,45 @@ export class AuthService {
     fullName?: string;
   }) {
     const existing = await this.users.findByEmail(payload.email);
-    if (existing) throw new Error("Email exists");
+    if (existing) throw new Error("Email already exists");
+
     const hash = await bcrypt.hash(payload.password, 10);
+
     const user = await this.users.create({
       email: payload.email,
       password: hash,
       fullName: payload.fullName,
+      role: "user",
     });
-    const { password, ...rest } = user;
-    return rest;
+
+    const { password, ...safeUser } = user;
+
+    // Auto login
+    const token = this.jwt.sign({
+      sub: safeUser.id,
+      email: safeUser.email,
+      role: safeUser.role,
+    });
+
+    return { token, user: safeUser };
+  }
+
+  /* =====================================================
+                  TẠO ADMIN MẶC ĐỊNH (OPTIONAL)
+     ===================================================== */
+  async ensureAdminExists() {
+    const admin = await this.users.findByEmail("admin@gotour.test");
+    if (!admin) {
+      const hash = await bcrypt.hash("admin123", 10);
+
+      await this.users.create({
+        email: "admin@gotour.test",
+        password: hash,
+        fullName: "Super Admin",
+        role: "admin",
+      });
+
+      console.log("✔ Admin mặc định đã được tạo!");
+    }
   }
 }

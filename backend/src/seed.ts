@@ -20,19 +20,22 @@ const USERS = [
   {
     email: "admin1@gotour.test",
     password: "admin123",
-    fullName: "Administrator One",
+    fullName: "Ad1",
+    images: "/avatars/1.jpg",
     role: "admin",
   },
   {
     email: "admin2@gotour.test",
     password: "admin123",
-    fullName: "Administrator Two",
+    fullName: "Ad2",
+    images: "/avatars/2.jpg",
     role: "admin",
   },
   {
     email: "admin3@gotour.test",
     password: "admin123",
-    fullName: "Administrator Three",
+    fullName: "Ad3",
+    images: "/avatars/3.jpg",
     role: "admin",
   },
 
@@ -40,6 +43,7 @@ const USERS = [
     email: "user1@gotour.test",
     password: "password123",
     fullName: "Nguyễn Văn A",
+
     role: "user",
   },
   {
@@ -1086,133 +1090,136 @@ async function run() {
   /* Create Users */
   const userRepo = ds.getRepository(User);
   const createdUsers = [];
+
   for (const u of USERS) {
     createdUsers.push(
       userRepo.create({
         email: u.email,
         password: await bcrypt.hash(u.password, 10),
         fullName: u.fullName,
-        role: u.role,
+        role: u.role as "admin" | "user",
+        status: "active" as "active" | "banned",
       })
     );
-  }
-  const savedUsers = await userRepo.save(createdUsers);
-  console.log(`👥 Users created: ${savedUsers.length}`);
 
-  /* Create Tours */
-  const tourRepo = ds.getRepository(Tour);
+    const savedUsers = await userRepo.save(createdUsers);
+    console.log(`👥 Users created: ${savedUsers.length}`);
 
-  // Define which tour indexes will have deals (only these will have discount fields set)
-  const DEAL_TOUR_INDEXES = [0, 2, 4, 7, 10, 13, 17, 22]; // ví dụ: 8 tour có deal
-  const DEAL_TYPES = [
-    "Summer Sale",
-    "Winter Sale",
-    "VIP",
-    "Early",
-    "Golden Deal",
-    "Diamond Deal",
-    "Silver Deal",
-  ];
+    /* Create Tours */
+    const tourRepo = ds.getRepository(Tour);
 
-  const tourEntities: Tour[] = TOURS.map((t, index) => {
-    let discount = 0;
-    let discountPrice = t.price;
-    let dealType: string | null = null;
-    let dealStart: Date | null = null;
-    let dealEnd: Date | null = null;
+    // Define which tour indexes will have deals (only these will have discount fields set)
+    const DEAL_TOUR_INDEXES = [0, 2, 4, 7, 10, 13, 17, 22]; // ví dụ: 8 tour có deal
+    const DEAL_TYPES = [
+      "Summer Sale",
+      "Winter Sale",
+      "VIP",
+      "Early",
+      "Golden Deal",
+      "Diamond Deal",
+      "Silver Deal",
+    ];
 
-    if (DEAL_TOUR_INDEXES.includes(index)) {
-      discount = Math.floor(Math.random() * 6) + 10; // 10–15%
-      discountPrice = Math.round(t.price - (t.price * discount) / 100);
-      dealType = DEAL_TYPES[index % DEAL_TYPES.length];
-      dealStart = new Date();
-      dealEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    }
+    const tourEntities: Tour[] = TOURS.map((t, index) => {
+      let discount = 0;
+      let discountPrice = t.price;
+      let dealType: string | null = null;
+      let dealStart: Date | null = null;
+      let dealEnd: Date | null = null;
 
-    const entity = tourRepo.create({
-      ...t,
-      discount,
-      discountPrice,
-      dealType,
-      dealStart,
-      dealEnd,
+      if (DEAL_TOUR_INDEXES.includes(index)) {
+        discount = Math.floor(Math.random() * 6) + 10; // 10–15%
+        discountPrice = Math.round(t.price - (t.price * discount) / 100);
+        dealType = DEAL_TYPES[index % DEAL_TYPES.length];
+        dealStart = new Date();
+        dealEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      }
+
+      const entity = tourRepo.create({
+        ...t,
+        discount,
+        discountPrice,
+        dealType,
+        dealStart,
+        dealEnd,
+      });
+
+      return entity;
     });
 
-    return entity;
+    const savedTours = await tourRepo.save(tourEntities);
+    console.log(`🗺️ Tours created: ${savedTours.length}`);
+
+    /* Create Testimonials */
+    const testRepo = ds.getRepository(Testimonial);
+    const testimonialEntities = TESTIMONIALS.map((t) =>
+      testRepo.create({
+        name: t.name,
+        role: t.role,
+        avatar: t.avatar,
+        rating: t.rating,
+        text: t.text,
+        tourName: savedTours[t.tourIndex].title,
+      })
+    );
+    await testRepo.save(testimonialEntities);
+    console.log("⭐ Testimonials created: 20");
+
+    /* Create Cart Items (20) */
+    const cartRepo = ds.getRepository(CartItem);
+    const cartItems = [];
+    for (let i = 0; i < 20; i++) {
+      cartItems.push(
+        cartRepo.create({
+          userId: savedUsers[i % savedUsers.length].id,
+          tourId: savedTours[i % savedTours.length].id,
+          qty: (i % 2) + 1,
+        })
+      );
+    }
+    await cartRepo.save(cartItems);
+    console.log("🛒 Cart items: 20");
+
+    /* Create Orders (20) */
+    const orderRepo = ds.getRepository(Order);
+    const orders = [];
+    for (let i = 0; i < 20; i++) {
+      const itemTour = savedTours[i % savedTours.length];
+      const total = itemTour.price;
+
+      orders.push(
+        orderRepo.create({
+          code: `ORD-${2000 + i}`,
+          userId: savedUsers[(i + 2) % savedUsers.length].id,
+          items: [{ tourId: itemTour.id, qty: 1, price: itemTour.price }],
+          total,
+          status: i % 3 === 0 ? "success" : "pending",
+        })
+      );
+    }
+    const savedOrders = await orderRepo.save(orders);
+    console.log("📦 Orders: 20");
+
+    /* Payments (20) */
+    const payRepo = ds.getRepository(Payment);
+    const payments = savedOrders.map((o, i) =>
+      payRepo.create({
+        orderId: o.id,
+        userId: o.userId,
+        amount: o.total,
+        method: i % 2 === 0 ? "card" : "bank",
+        status: o.status,
+      })
+    );
+    await payRepo.save(payments);
+    console.log("💳 Payments: 20");
+
+    console.log("🔥 SEED COMPLETED!");
+    process.exit(0);
+  }
+
+  run().catch((err) => {
+    console.error("❌ SEED ERROR:", err);
+    process.exit(1);
   });
-
-  const savedTours = await tourRepo.save(tourEntities);
-  console.log(`🗺️ Tours created: ${savedTours.length}`);
-
-  /* Create Testimonials */
-  const testRepo = ds.getRepository(Testimonial);
-  const testimonialEntities = TESTIMONIALS.map((t) =>
-    testRepo.create({
-      name: t.name,
-      role: t.role,
-      avatar: t.avatar,
-      rating: t.rating,
-      text: t.text,
-      tourName: savedTours[t.tourIndex].title,
-    })
-  );
-  await testRepo.save(testimonialEntities);
-  console.log("⭐ Testimonials created: 20");
-
-  /* Create Cart Items (20) */
-  const cartRepo = ds.getRepository(CartItem);
-  const cartItems = [];
-  for (let i = 0; i < 20; i++) {
-    cartItems.push(
-      cartRepo.create({
-        userId: savedUsers[i % savedUsers.length].id,
-        tourId: savedTours[i % savedTours.length].id,
-        qty: (i % 2) + 1,
-      })
-    );
-  }
-  await cartRepo.save(cartItems);
-  console.log("🛒 Cart items: 20");
-
-  /* Create Orders (20) */
-  const orderRepo = ds.getRepository(Order);
-  const orders = [];
-  for (let i = 0; i < 20; i++) {
-    const itemTour = savedTours[i % savedTours.length];
-    const total = itemTour.price;
-
-    orders.push(
-      orderRepo.create({
-        code: `ORD-${2000 + i}`,
-        userId: savedUsers[(i + 2) % savedUsers.length].id,
-        items: [{ tourId: itemTour.id, qty: 1, price: itemTour.price }],
-        total,
-        status: i % 3 === 0 ? "success" : "pending",
-      })
-    );
-  }
-  const savedOrders = await orderRepo.save(orders);
-  console.log("📦 Orders: 20");
-
-  /* Payments (20) */
-  const payRepo = ds.getRepository(Payment);
-  const payments = savedOrders.map((o, i) =>
-    payRepo.create({
-      orderId: o.id,
-      userId: o.userId,
-      amount: o.total,
-      method: i % 2 === 0 ? "card" : "bank",
-      status: o.status,
-    })
-  );
-  await payRepo.save(payments);
-  console.log("💳 Payments: 20");
-
-  console.log("🔥 SEED COMPLETED!");
-  process.exit(0);
 }
-
-run().catch((err) => {
-  console.error("❌ SEED ERROR:", err);
-  process.exit(1);
-});

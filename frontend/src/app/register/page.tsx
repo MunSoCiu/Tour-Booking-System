@@ -1,39 +1,39 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import LoginTabs from "@/components/auth/LoginTabs";
+import { FcGoogle } from "react-icons/fc";
+import { FaFacebookF } from "react-icons/fa";
 
 export default function RegisterPage() {
   const API = process.env.NEXT_PUBLIC_API_URL;
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [regName, setRegName] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regPassword, setRegPassword] = useState("");
+  const [registerLoading, setRegisterLoading] = useState(false);
 
   const handleRegister = async () => {
-    if (!name || !email || !password) {
-      alert("Vui lòng nhập đầy đủ thông tin.");
-      return;
-    }
+    if (!regName || !regEmail || !regPassword)
+      return alert("Vui lòng nhập đầy đủ thông tin.");
 
-    setLoading(true);
+    setRegisterLoading(true);
 
     const res = await fetch(`${API}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({
+        name: regName,
+        email: regEmail,
+        password: regPassword,
+      }),
     });
 
     const data = await res.json();
-    setLoading(false);
+    setRegisterLoading(false);
 
-    if (!res.ok) {
-      alert(data.message || "Đăng ký thất bại.");
-      return;
-    }
+    if (!res.ok) return alert(data.message || "Đăng ký thất bại.");
 
-    // Auto-login
     localStorage.setItem("token", data.token);
 
     alert("Đăng ký thành công!");
@@ -41,19 +41,24 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#f7f8fa] px-4">
       <div className="bg-white shadow-md rounded-xl p-8 w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center mb-6">Đăng Ký</h2>
+        <LoginTabs active="register" />
+
+        <h2 className="text-2xl font-bold text-center mt-6">Tạo tài khoản</h2>
+        <p className="text-center text-gray-500 text-sm mb-6">
+          Tham gia ngay để nhận ưu đãi hấp dẫn
+        </p>
 
         <div className="space-y-4">
           <div>
             <label className="text-sm">Họ và tên</label>
             <input
               type="text"
-              className="w-full px-4 py-3 border rounded-lg mt-1"
+              className="w-full px-4 py-3 border rounded-lg mt-1 focus:border-blue-600 outline-none"
               placeholder="Nguyễn Văn A"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={regName}
+              onChange={(e) => setRegName(e.target.value)}
             />
           </div>
 
@@ -61,10 +66,10 @@ export default function RegisterPage() {
             <label className="text-sm">Email</label>
             <input
               type="email"
-              className="w-full px-4 py-3 border rounded-lg mt-1"
+              className="w-full px-4 py-3 border rounded-lg mt-1 focus:border-blue-600 outline-none"
               placeholder="email@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={regEmail}
+              onChange={(e) => setRegEmail(e.target.value)}
             />
           </div>
 
@@ -72,27 +77,38 @@ export default function RegisterPage() {
             <label className="text-sm">Mật khẩu</label>
             <input
               type="password"
-              className="w-full px-4 py-3 border rounded-lg mt-1"
+              className="w-full px-4 py-3 border rounded-lg mt-1 focus:border-blue-600 outline-none"
               placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={regPassword}
+              onChange={(e) => setRegPassword(e.target.value)}
             />
           </div>
 
           <button
             onClick={handleRegister}
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 mt-2"
+            disabled={registerLoading}
+            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition mt-2"
           >
-            {loading ? "Đang đăng ký..." : "Đăng ký"}
+            {registerLoading ? "Đang đăng ký..." : "Đăng ký"}
           </button>
 
-          <p className="text-center text-sm text-gray-600 mt-4">
-            Đã có tài khoản?
-            <Link href="/login" className="text-blue-600 ml-1">
-              Đăng nhập ngay
-            </Link>
-          </p>
+          {/* Divider */}
+          <div className="flex items-center my-4">
+            <div className="flex-1 h-px bg-gray-200"></div>
+            <span className="px-3 text-gray-400 text-sm">
+              Hoặc tiếp tục với
+            </span>
+            <div className="flex-1 h-px bg-gray-200"></div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <button className="flex items-center justify-center gap-2 border py-3 rounded-lg hover:bg-gray-50">
+              <FcGoogle className="text-xl" /> Google
+            </button>
+            <button className="flex items-center justify-center gap-2 border py-3 rounded-lg hover:bg-gray-50">
+              <FaFacebookF className="text-blue-600 text-lg" /> Facebook
+            </button>
+          </div>
         </div>
       </div>
     </div>
