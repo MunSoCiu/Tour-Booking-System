@@ -22,7 +22,10 @@ export class OrdersController {
 
   @Put(":id/status")
   updateStatus(@Param("id") id: string, @Body() body: { status: string }) {
-    return this.svc.updateStatus(id, body.status);
+    return this.svc.updateStatus(
+      id,
+      body.status as "pending" | "success" | "cancelled"
+    );
   }
 
   @Put(":id/cancel")

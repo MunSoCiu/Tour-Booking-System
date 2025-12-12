@@ -3,27 +3,39 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from "typeorm";
+import { User } from "../users/user.entity";
 
 @Entity("orders")
 export class Order {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column()
+  @Column({ unique: true })
   code: string;
+
+  @ManyToOne(() => User, (user) => user.orders, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "userId" })
+  user: User;
 
   @Column()
   userId: string;
 
+  // danh sách sản phẩm mua
   @Column("json")
-  items: any; // [{tourId, qty, price}]
+  items: {
+    tourId: string;
+    qty: number;
+    price: number;
+  }[];
 
   @Column("int")
   total: number;
 
   @Column({ default: "pending" })
-  status: string;
+  status: "pending" | "success" | "cancelled";
 
   @CreateDateColumn()
   createdAt: Date;

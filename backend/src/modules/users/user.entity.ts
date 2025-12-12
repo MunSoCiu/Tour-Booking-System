@@ -3,7 +3,10 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  OneToMany,
 } from "typeorm";
+
+import { Order } from "../orders/order.entity";
 
 @Entity("users")
 export class User {
@@ -22,6 +25,9 @@ export class User {
   @Column({ nullable: true })
   phone: string;
 
+  @Column({ nullable: true })
+  avatar: string;
+
   @Column({
     type: "varchar",
     default: "user",
@@ -33,4 +39,7 @@ export class User {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
 }

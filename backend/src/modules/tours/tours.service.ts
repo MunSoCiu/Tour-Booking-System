@@ -60,4 +60,44 @@ export class ToursService {
   findBySlug(slug: string) {
     return this.repo.findOne({ where: { slug } });
   }
+
+  async createAdminTour(data: any) {
+    const tour = this.repo.create({
+      title: data.title,
+      slug: data.title.toLowerCase().replace(/\s+/g, "-"),
+      price: data.price,
+      image: data.image,
+      description: data.description ?? "",
+      location: data.location ?? "",
+      duration: data.duration ?? "1N",
+    });
+
+    return this.repo.save(tour);
+  }
+
+  async update(id: string, data: any) {
+    await this.repo.update(id, data);
+    return this.repo.findOne({ where: { id } });
+  }
+
+  async updateDeal(id: string, data: any) {
+    await this.repo.update(id, data);
+    return this.repo.findOne({ where: { id } });
+  }
+
+  delete(id: string) {
+    return this.repo.delete(id);
+  }
+
+  // GET DEALS
+  async getDeals() {
+    return this.repo.find({
+      where: [
+        { dealType: "flash-sale" },
+        { dealType: "seasonal" },
+        { dealType: "last-minute" },
+      ],
+      order: { createdAt: "DESC" },
+    });
+  }
 }

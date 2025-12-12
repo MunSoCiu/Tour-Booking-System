@@ -29,12 +29,19 @@ export class OrdersService {
     return this.repo.findOneBy({ id });
   }
 
-  async updateStatus(id: string, status: string) {
+  async updateStatus(id: string, status: "pending" | "success" | "cancelled") {
     await this.repo.update(id, { status });
     return this.findOne(id);
   }
 
   cancel(id: string) {
     return this.updateStatus(id, "cancelled");
+  }
+
+  async adminFindAll() {
+    return this.repo.find({
+      order: { createdAt: "DESC" },
+      relations: ["user"],
+    });
   }
 }

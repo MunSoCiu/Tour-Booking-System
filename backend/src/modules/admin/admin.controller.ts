@@ -1,21 +1,30 @@
 import { Controller, Get } from "@nestjs/common";
 import { AdminService } from "./admin.service";
 
-@Controller("admin/stats")
+@Controller("admin")
 export class AdminController {
-  constructor(private svc: AdminService) {}
+  constructor(private readonly svc: AdminService) {}
 
-  @Get()
+  /* ===============================
+        DASHBOARD MAIN STATS
+  =============================== */
+  @Get("stats")
   getStats() {
     return this.svc.getStats();
   }
 
-  @Get("top-tours")
+  /* ===============================
+        TOP SELLING TOURS
+  =============================== */
+  @Get("stats/top-tours")
   getTopTours() {
     return this.svc.getTopTours();
   }
 
-  @Get("revenue-chart")
+  /* ===============================
+        REVENUE CHART
+  =============================== */
+  @Get("stats/revenue-chart")
   getRevenueChart() {
     return this.svc.getRevenueChart();
   }

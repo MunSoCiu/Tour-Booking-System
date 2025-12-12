@@ -14,6 +14,7 @@ export class UsersService {
   async findAll() {
     const users = await this.repo.find();
     return users.map(({ password, ...rest }) => rest);
+    return this.repo.find({ order: { createdAt: "DESC" } });
   }
 
   /* ===================================
@@ -47,8 +48,11 @@ export class UsersService {
   /* ===================================
             UPDATE USER
   =================================== */
-  async update(id: string, payload: Partial<User>) {
+  async update(id: string, payload: Partial<User>, data?: any) {
     const user = await this.findById(id);
+
+    await this.repo.update(id, data);
+    return this.repo.findOne({ where: { id } });
 
     // Nếu cập nhật mật khẩu → hash lại
     if (payload.password) {

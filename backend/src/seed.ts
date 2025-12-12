@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 import "reflect-metadata";
-import { DataSource } from "typeorm";
+import { DataSource, In } from "typeorm";
 import ormconfig from "./ormconfig";
 
 import { User } from "./modules/users/user.entity";
@@ -38,12 +38,10 @@ const USERS = [
     images: "/avatars/3.jpg",
     role: "admin",
   },
-
   {
     email: "user1@gotour.test",
     password: "password123",
     fullName: "Nguyễn Văn A",
-
     role: "user",
   },
   {
@@ -1074,10 +1072,11 @@ const TESTIMONIALS = [
 async function run() {
   const ds = new DataSource(ormconfig as any);
   await ds.initialize();
+  console.log("🌍 Connected!");
 
-  console.log("🌍 Connected to DB!");
+  /** Disable FK to allow truncating tables safely */
+  await ds.query("SET FOREIGN_KEY_CHECKS = 0");
 
-  // Clear old data
   await ds.getRepository(Payment).clear();
   await ds.getRepository(Order).clear();
   await ds.getRepository(CartItem).clear();
@@ -1085,141 +1084,151 @@ async function run() {
   await ds.getRepository(Tour).clear();
   await ds.getRepository(User).clear();
 
-  console.log("🧹 Old data cleared");
+  await ds.query("SET FOREIGN_KEY_CHECKS = 1");
+  console.log("🧹 Tables cleared safely");
 
-  /* Create Users */
+  /* USERS */
   const userRepo = ds.getRepository(User);
-  const createdUsers = [];
+  const users = await Promise.all(
+    USERS.map(async (u) =>
+      userRepo.save(
+        userRepo.create({
+          email: u.email,
+          password: await bcrypt.hash(u.password, 10),
+          fullName: u.fullName,
+          avatar: u.images || null,
+          role: u.role as "admin" | "user",
+          status: "active",
+        })
+      )
+    )
+  );
+  console.log("👤 Users:", users.length);
 
-  for (const u of USERS) {
-    createdUsers.push(
-      userRepo.create({
-        email: u.email,
-        password: await bcrypt.hash(u.password, 10),
-        fullName: u.fullName,
-        role: u.role as "admin" | "user",
-        status: "active" as "active" | "banned",
-      })
-    );
+  /* TOURS */
+  const tourRepo = ds.getRepository(Tour);
 
-    const savedUsers = await userRepo.save(createdUsers);
-    console.log(`👥 Users created: ${savedUsers.length}`);
+  const savedTours = await Promise.all(
+    TOURS.map((t, index) => {
+      const DEAL_INDEX = [0, 2, 4, 7, 10, 13, 17, 22];
+      const DEAL_TYPES = [
+        "Summer Sale",
+        "Winter Sale",
+        "VIP",
+        "Early",
+        "Golden Deal",
+        "Diamond Deal",
+        "Silver Deal",
+      ];
 
-    /* Create Tours */
-    const tourRepo = ds.getRepository(Tour);
-
-    // Define which tour indexes will have deals (only these will have discount fields set)
-    const DEAL_TOUR_INDEXES = [0, 2, 4, 7, 10, 13, 17, 22]; // ví dụ: 8 tour có deal
-    const DEAL_TYPES = [
-      "Summer Sale",
-      "Winter Sale",
-      "VIP",
-      "Early",
-      "Golden Deal",
-      "Diamond Deal",
-      "Silver Deal",
-    ];
-
-    const tourEntities: Tour[] = TOURS.map((t, index) => {
       let discount = 0;
       let discountPrice = t.price;
-      let dealType: string | null = null;
-      let dealStart: Date | null = null;
-      let dealEnd: Date | null = null;
+      let dealType = null;
+      let dealStart = null;
+      let dealEnd = null;
 
-      if (DEAL_TOUR_INDEXES.includes(index)) {
+      if (DEAL_INDEX.includes(index)) {
         discount = Math.floor(Math.random() * 6) + 10; // 10–15%
         discountPrice = Math.round(t.price - (t.price * discount) / 100);
+
         dealType = DEAL_TYPES[index % DEAL_TYPES.length];
         dealStart = new Date();
-        dealEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+        dealEnd = new Date(Date.now() + 7 * 86400 * 1000);
       }
 
-      const entity = tourRepo.create({
-        ...t,
-        discount,
-        discountPrice,
-        dealType,
-        dealStart,
-        dealEnd,
-      });
+      return tourRepo.save(
+        tourRepo.create({
+          ...t,
+          discount,
+          discountPrice,
+          dealType,
+          dealStart,
+          dealEnd,
+        })
+      );
+    })
+  );
 
-      return entity;
-    });
+  console.log("🗺 Tours:", savedTours.length);
 
-    const savedTours = await tourRepo.save(tourEntities);
-    console.log(`🗺️ Tours created: ${savedTours.length}`);
+  /* TESTIMONIALS */
+  const testRepo = ds.getRepository(Testimonial);
+  await Promise.all(
+    TESTIMONIALS.map((t) =>
+      testRepo.save(
+        testRepo.create({
+          name: t.name,
+          role: t.role,
+          avatar: t.avatar,
+          rating: t.rating,
+          text: t.text,
+          tourName: savedTours[t.tourIndex].title,
+        })
+      )
+    )
+  );
+  console.log("⭐ Testimonials created");
 
-    /* Create Testimonials */
-    const testRepo = ds.getRepository(Testimonial);
-    const testimonialEntities = TESTIMONIALS.map((t) =>
-      testRepo.create({
-        name: t.name,
-        role: t.role,
-        avatar: t.avatar,
-        rating: t.rating,
-        text: t.text,
-        tourName: savedTours[t.tourIndex].title,
-      })
-    );
-    await testRepo.save(testimonialEntities);
-    console.log("⭐ Testimonials created: 20");
+  /* CART ITEMS */
+  const cartRepo = ds.getRepository(CartItem);
 
-    /* Create Cart Items (20) */
-    const cartRepo = ds.getRepository(CartItem);
-    const cartItems = [];
-    for (let i = 0; i < 20; i++) {
-      cartItems.push(
+  await Promise.all(
+    [...Array(20)].map((_, i) =>
+      cartRepo.save(
         cartRepo.create({
-          userId: savedUsers[i % savedUsers.length].id,
+          userId: users[i % users.length].id,
           tourId: savedTours[i % savedTours.length].id,
           qty: (i % 2) + 1,
         })
-      );
-    }
-    await cartRepo.save(cartItems);
-    console.log("🛒 Cart items: 20");
+      )
+    )
+  );
+  console.log("🛒 Cart items: 20");
 
-    /* Create Orders (20) */
-    const orderRepo = ds.getRepository(Order);
-    const orders = [];
-    for (let i = 0; i < 20; i++) {
-      const itemTour = savedTours[i % savedTours.length];
-      const total = itemTour.price;
+  /* ORDERS */
+  const orderRepo = ds.getRepository(Order);
 
-      orders.push(
+  const orders = await Promise.all(
+    [...Array(20)].map((_, i) => {
+      const tour = savedTours[i % savedTours.length];
+      return orderRepo.save(
         orderRepo.create({
           code: `ORD-${2000 + i}`,
-          userId: savedUsers[(i + 2) % savedUsers.length].id,
-          items: [{ tourId: itemTour.id, qty: 1, price: itemTour.price }],
-          total,
+          userId: users[i % users.length].id,
+          items: [{ tourId: tour.id, qty: 1, price: tour.price }],
+          total: tour.price,
           status: i % 3 === 0 ? "success" : "pending",
         })
       );
-    }
-    const savedOrders = await orderRepo.save(orders);
-    console.log("📦 Orders: 20");
+    })
+  );
 
-    /* Payments (20) */
-    const payRepo = ds.getRepository(Payment);
-    const payments = savedOrders.map((o, i) =>
-      payRepo.create({
-        orderId: o.id,
-        userId: o.userId,
-        amount: o.total,
-        method: i % 2 === 0 ? "card" : "bank",
-        status: o.status,
-      })
-    );
-    await payRepo.save(payments);
-    console.log("💳 Payments: 20");
+  console.log("📦 Orders:", orders.length);
 
-    console.log("🔥 SEED COMPLETED!");
-    process.exit(0);
-  }
+  /* PAYMENTS */
+  const payRepo = ds.getRepository(Payment);
 
-  run().catch((err) => {
-    console.error("❌ SEED ERROR:", err);
-    process.exit(1);
-  });
+  await Promise.all(
+    orders.map((o, i) =>
+      payRepo.save(
+        payRepo.create({
+          orderId: o.id,
+          userId: o.userId,
+          amount: o.total,
+          method: i % 2 === 0 ? "card" : "bank",
+          status: o.status,
+        })
+      )
+    )
+  );
+
+  console.log("💳 Payments created");
+
+  console.log("🔥 SEED COMPLETED!");
+  process.exit(0);
 }
+
+run().catch((err) => {
+  console.error("❌ SEED ERROR:", err);
+  process.exit(1);
+});

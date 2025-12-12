@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
-@Entity()
+@Entity("tours")
 export class Tour {
   @PrimaryGeneratedColumn("uuid")
   id: string;
@@ -39,7 +39,7 @@ export class Tour {
   itinerary: {
     day: string;
     title: string;
-    description: string;
+    desc: string;
   }[];
 
   @Column({ type: "float", default: 0 })

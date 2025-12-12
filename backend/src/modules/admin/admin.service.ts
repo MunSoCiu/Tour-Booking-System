@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Repository, In } from "typeorm";
 import { User } from "../users/user.entity";
 import { Tour } from "../tours/tour.entity";
 import { Order } from "../orders/order.entity";
@@ -13,65 +13,75 @@ export class AdminService {
     @InjectRepository(Order) private orderRepo: Repository<Order>
   ) {}
 
-  /* ============================
-       1. Tổng quan thống kê
-  ============================ */
+  /* ========================================
+        1. DASHBOARD — TỔNG QUAN
+  ======================================== */
   async getStats() {
     const totalUsers = await this.userRepo.count();
     const totalTours = await this.tourRepo.count();
     const totalOrders = await this.orderRepo.count();
 
-    // Tổng doanh thu (sum total)
     const revenue = await this.orderRepo
       .createQueryBuilder("o")
       .select("SUM(o.total)", "sum")
       .where("o.status = :s", { s: "success" })
       .getRawOne();
 
-    const totalRevenue = Number(revenue.sum || 0);
-
     return {
       totalUsers,
       totalTours,
       totalOrders,
-      totalRevenue,
+      totalRevenue: Number(revenue?.sum || 0),
     };
   }
 
-  /* ============================
-       2. Top Tours (tour bán chạy)
-  ============================ */
+  /* ========================================
+        2. TOP SELLING TOURS — FIX 100%
+  ======================================== */
   async getTopTours() {
-    const orders = await this.orderRepo.find();
+    // Lấy order success
+    const orders = await this.orderRepo.find({
+      where: { status: "success" },
+    });
 
-    const map = new Map<string, { title: string; sold: number }>();
+    if (orders.length === 0) return [];
+
+    // Map: { tourId → tổng qty }
+    const soldMap = new Map<string, number>();
 
     for (const order of orders) {
+      if (!Array.isArray(order.items)) continue;
+
       for (const item of order.items) {
-        const tour = await this.tourRepo.findOne({
-          where: { id: item.tourId },
-          select: { id: true, title: true },
-        });
+        if (!item?.tourId) continue;
 
-        if (!tour) continue;
-
-        if (!map.has(tour.id)) {
-          map.set(tour.id, { title: tour.title, sold: item.qty });
-        } else {
-          map.get(tour.id).sold += item.qty;
-        }
+        const prev = soldMap.get(item.tourId) || 0;
+        soldMap.set(item.tourId, prev + Number(item.qty || 0));
       }
     }
 
-    // Convert to array + sort
-    return Array.from(map.values())
-      .sort((a, b) => b.sold - a.sold)
-      .slice(0, 5); // lấy top 5
+    const tourIds = Array.from(soldMap.keys());
+    if (tourIds.length === 0) return [];
+
+    // ⭐ FIX LỖI TYPEORM HERE ⭐
+    // `In(tourIds)` yêu cầu mảng string → OK vì id của bạn là uuid string
+    const tours = await this.tourRepo.find({
+      where: { id: In(tourIds) },
+      select: { id: true, title: true },
+    });
+
+    const merged = tours.map((t) => ({
+      id: t.id,
+      title: t.title,
+      sold: soldMap.get(t.id) || 0,
+    }));
+
+    return merged.sort((a, b) => b.sold - a.sold).slice(0, 5);
   }
 
-  /* ============================
-       3. Revenue Chart (12 tháng)
-  ============================ */
+  /* ========================================
+        3. REVENUE CHART — 12 THÁNG
+  ======================================== */
   async getRevenueChart() {
     const months = [];
     const revenues = [];
@@ -85,7 +95,7 @@ export class AdminService {
         .getRawOne();
 
       months.push(`Th ${i}`);
-      revenues.push(Number(data.sum || 0));
+      revenues.push(Number(data?.sum || 0));
     }
 
     return { months, revenues };
