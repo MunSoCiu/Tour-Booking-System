@@ -18,17 +18,11 @@ export default function DealsPage() {
 
       console.log("DEAL API:", res.data);
 
-      // Chuẩn hoá dữ liệu → luôn là mảng
-      const list = Array.isArray(res.data)
-        ? res.data
-        : Array.isArray(res.data?.data)
-        ? res.data.data
-        : [];
+      const list = Array.isArray(res.data?.items) ? res.data.items : [];
 
-      // Lọc chỉ tour có deal
-      const deals = list.filter((t: any) => t.dealType);
+      const dealsOnly = list.filter((t: any) => t.dealType);
 
-      setDeals(deals);
+      setDeals(dealsOnly);
     } catch (err) {
       console.error(err);
     }

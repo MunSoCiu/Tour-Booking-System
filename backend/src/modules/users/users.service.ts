@@ -8,58 +8,74 @@ import * as bcrypt from "bcrypt";
 export class UsersService {
   constructor(@InjectRepository(User) private repo: Repository<User>) {}
 
-  /* ===================================
-            GET ALL USERS
-  =================================== */
-  async findAll() {
-    const users = await this.repo.find();
-    return users.map(({ password, ...rest }) => rest);
-    return this.repo.find({ order: { createdAt: "DESC" } });
-  }
-
-  /* ===================================
-            FIND BY ID
-  =================================== */
-  async findById(id: string) {
-    const user = await this.repo.findOneBy({ id });
-    if (!user) return null;
+  /* ======================
+        INTERNAL HELPERS
+  ====================== */
+  private sanitize(user: User) {
     const { password, ...safe } = user;
     return safe;
   }
 
-  /* ===================================
-            FIND BY EMAIL
-  =================================== */
+  /* ======================
+        GET ALL USERS
+  ====================== */
+  async findAll() {
+    const users = await this.repo.find();
+    return users.map((u) => this.sanitize(u));
+  }
+
+  /* ======================
+        FIND ENTITY BY ID
+  ====================== */
+  async findEntityById(id: string) {
+    const user = await this.repo.findOne({ where: { id } });
+    if (!user) throw new NotFoundException("User not found");
+    return user;
+  }
+
+  /* ======================
+        FIND SAFE BY ID
+  ====================== */
+  async findById(id: string) {
+    const user = await this.findEntityById(id);
+    return this.sanitize(user);
+  }
+
+  /* ======================
+        FIND BY EMAIL
+  ====================== */
   findByEmail(email: string) {
     return this.repo.findOne({ where: { email } });
   }
 
-  /* ===================================
-            CREATE USER
-  =================================== */
+  /* ======================
+        CREATE USER
+  ====================== */
   async create(payload: Partial<User>) {
-    // Auto-set role if missing
     if (!payload.role) payload.role = "user";
 
+    if (payload.password) {
+      payload.password = await bcrypt.hash(payload.password, 10);
+    }
+
     const user = this.repo.create(payload);
-    return this.repo.save(user);
+    const saved = await this.repo.save(user);
+    return this.sanitize(saved);
   }
 
-  /* ===================================
-            UPDATE USER
-  =================================== */
-  async update(id: string, payload: Partial<User>, data?: any) {
-    const user = await this.findById(id);
+  /* ======================
+        UPDATE USER
+  ====================== */
+  async update(id: string, payload: Partial<User>) {
+    const user = await this.findEntityById(id);
 
-    await this.repo.update(id, data);
-    return this.repo.findOne({ where: { id } });
-
-    // Nếu cập nhật mật khẩu → hash lại
     if (payload.password) {
       payload.password = await bcrypt.hash(payload.password, 10);
     }
 
     Object.assign(user, payload);
-    return this.repo.save(user);
+    const saved = await this.repo.save(user);
+
+    return this.sanitize(saved);
   }
 }

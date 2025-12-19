@@ -1,5 +1,5 @@
 import { Controller, Get, Put, Body, Param } from "@nestjs/common";
-import { ToursService } from "../tours/tours.service";
+import { ToursService } from "@/modules/tours/tours.service";
 
 @Controller("admin/deals")
 export class AdminDealsController {

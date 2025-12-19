@@ -7,7 +7,7 @@ import {
   Body,
   Param,
 } from "@nestjs/common";
-import { ToursService } from "../tours/tours.service";
+import { ToursService } from "@/modules/tours/tours.service";
 
 @Controller("admin/tours")
 export class AdminToursController {

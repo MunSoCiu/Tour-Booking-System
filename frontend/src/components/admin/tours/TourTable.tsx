@@ -12,17 +12,9 @@ export default function TourTable() {
       setLoading(true);
 
       const res = await api.get("/tours");
-
       console.log("API DATA:", res.data);
 
-      // Đảm bảo tours luôn là mảng
-      const list = Array.isArray(res.data)
-        ? res.data
-        : Array.isArray(res.data?.data)
-        ? res.data.data
-        : [];
-
-      setTours(list);
+      setTours(Array.isArray(res.data?.items) ? res.data.items : []);
     } catch (err) {
       console.error(err);
       alert("Không thể tải danh sách tour!");
@@ -46,12 +38,21 @@ export default function TourTable() {
     loadData();
   }, []);
 
-  if (loading)
+  if (loading) {
     return (
       <div className="bg-white p-4 rounded-xl shadow text-center">
         Đang tải dữ liệu...
       </div>
     );
+  }
+
+  if (!tours.length) {
+    return (
+      <div className="bg-white p-4 rounded-xl shadow text-center text-gray-400">
+        Không có tour
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white p-4 rounded-xl shadow">
@@ -66,12 +67,10 @@ export default function TourTable() {
         </thead>
 
         <tbody>
-          {tours.map((t: any) => (
+          {tours.map((t) => (
             <tr key={t.id} className="border-b hover:bg-gray-50">
               <td className="p-3">{t.title}</td>
-
               <td className="p-3">{t.price?.toLocaleString("vi-VN")} đ</td>
-
               <td className="p-3">
                 <span
                   className={`px-2 py-1 text-sm rounded ${
@@ -83,10 +82,8 @@ export default function TourTable() {
                   {t.dealType ? "Đang ưu đãi" : "Bình thường"}
                 </span>
               </td>
-
               <td className="p-3 text-right">
                 <button className="text-blue-600 mr-4">Sửa</button>
-
                 <button
                   className="text-red-600"
                   onClick={() => deleteTour(t.id)}

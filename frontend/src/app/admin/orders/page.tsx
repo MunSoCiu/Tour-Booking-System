@@ -15,7 +15,10 @@ export default function OrdersPage() {
   async function load() {
     try {
       const res = await api.get("/orders");
-      setOrders(res.data);
+
+      const list = Array.isArray(res.data?.items) ? res.data.items : [];
+
+      setOrders(list);
     } catch (err) {
       console.log(err);
     }

@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, Like } from "typeorm";
+import { IsNull, Not } from "typeorm";
 import { Tour } from "./tour.entity";
 
 @Injectable()
@@ -89,14 +90,9 @@ export class ToursService {
     return this.repo.delete(id);
   }
 
-  // GET DEALS
   async getDeals() {
     return this.repo.find({
-      where: [
-        { dealType: "flash-sale" },
-        { dealType: "seasonal" },
-        { dealType: "last-minute" },
-      ],
+      where: { dealType: Not(IsNull()) },
       order: { createdAt: "DESC" },
     });
   }

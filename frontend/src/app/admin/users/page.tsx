@@ -16,7 +16,10 @@ export default function UsersPage() {
   async function load() {
     try {
       const res = await api.get("/users");
-      setUsers(res.data);
+
+      const list = Array.isArray(res.data?.items) ? res.data.items : [];
+
+      setUsers(list);
     } catch (err) {
       console.log(err);
     }
@@ -58,7 +61,6 @@ export default function UsersPage() {
                     </td>
 
                     <td className="p-3">{u.email}</td>
-
                     <td className="p-3 capitalize">{u.role}</td>
 
                     <td className="p-3 text-right">

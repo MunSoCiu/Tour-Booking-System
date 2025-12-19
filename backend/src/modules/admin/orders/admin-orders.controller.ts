@@ -1,23 +1,26 @@
 import { Controller, Get, Param, Put, Body } from "@nestjs/common";
-import { OrdersService } from "../orders/orders.service";
-import { UsersService } from "../users/users.service";
+import { OrdersService } from "@/modules/orders/orders.service";
+import { UsersService } from "@/modules/users/users.service";
 
 @Controller("admin/orders")
 export class AdminOrdersController {
-  constructor(private orders: OrdersService, private users: UsersService) {}
+  constructor(private ordersService: OrdersService) {}
 
   @Get()
-  async getAll() {
-    return this.orders.adminFindAll();
-  }
-
-  @Get(":id")
-  async detail(@Param("id") id: string) {
-    return this.orders.findOne(id);
+  getAll() {
+    return this.ordersService.adminFindAll();
   }
 
   @Put(":id/status")
-  updateStatus(@Param("id") id: string, @Body() body: any) {
-    return this.orders.updateStatus(id, body.status);
+  updateStatus(
+    @Param("id") id: string,
+    @Body() body: { status: "pending" | "success" | "cancelled" }
+  ) {
+    return this.ordersService.updateStatus(id, body.status);
+  }
+
+  @Put(":id/cancel")
+  cancel(@Param("id") id: string) {
+    return this.ordersService.cancel(id);
   }
 }
