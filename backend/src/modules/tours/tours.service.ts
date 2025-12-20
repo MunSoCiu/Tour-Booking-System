@@ -1,14 +1,15 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, Like } from "typeorm";
-import { IsNull, Not } from "typeorm";
+import { Repository, Like, IsNull, Not } from "typeorm";
 import { Tour } from "./tour.entity";
 
 @Injectable()
 export class ToursService {
   constructor(@InjectRepository(Tour) private repo: Repository<Tour>) {}
 
-  // GET ALL + FILTER
+  /* =========================
+        GET ALL + FILTER
+  ========================= */
   async findAll(q: any) {
     const page = Number(q.page) || 1;
     const limit = Number(q.limit) || 50;
@@ -23,10 +24,9 @@ export class ToursService {
       where.location = Like(`%${q.location}%`);
     }
 
-    // FILTER DAYS → example: 3 = match "3N%"
-    if (q?.days) {
+    // FILTER DAYS → example: 3 = "3N%"
+    if (q.days) {
       const day = Number(q.days);
-
       where.duration = Like(`${day}N%`);
     }
 
@@ -44,24 +44,31 @@ export class ToursService {
     return { items, total, page, limit };
   }
 
-  // GET DAYS LIST
+  /* =========================
+        GET DAYS LIST
+  ========================= */
   async getDaysList() {
     const tours = await this.repo.find();
     const days = new Set<number>();
 
     tours.forEach((t) => {
-      const match = t.duration.match(/^(\d+)N/);
+      const match = t.duration?.match(/^(\d+)N/);
       if (match) days.add(Number(match[1]));
     });
 
     return Array.from(days).sort((a, b) => a - b);
   }
 
-  // GET ONE BY SLUG
+  /* =========================
+        GET BY SLUG
+  ========================= */
   findBySlug(slug: string) {
     return this.repo.findOne({ where: { slug } });
   }
 
+  /* =========================
+        ADMIN CREATE TOUR
+  ========================= */
   async createAdminTour(data: any) {
     const tour = this.repo.create({
       title: data.title,
@@ -76,20 +83,58 @@ export class ToursService {
     return this.repo.save(tour);
   }
 
+  /* =========================
+        UPDATE TOUR
+  ========================= */
   async update(id: string, data: any) {
-    await this.repo.update(id, data);
-    return this.repo.findOne({ where: { id } });
+    const tour = await this.repo.findOne({ where: { id } });
+    if (!tour) throw new NotFoundException("Tour not found");
+
+    Object.assign(tour, data);
+    return this.repo.save(tour);
   }
 
+  /* =========================
+        UPDATE / ADD DEAL
+  ========================= */
   async updateDeal(id: string, data: any) {
-    await this.repo.update(id, data);
-    return this.repo.findOne({ where: { id } });
+    const tour = await this.repo.findOne({ where: { id } });
+    if (!tour) throw new NotFoundException("Tour not found");
+
+    Object.assign(tour, data);
+    return this.repo.save(tour);
   }
 
-  delete(id: string) {
-    return this.repo.delete(id);
+  /* =========================
+        REMOVE DEAL (QUAN TRỌNG)
+  ========================= */
+  async removeDeal(id: string) {
+    const tour = await this.repo.findOne({ where: { id } });
+    if (!tour) throw new NotFoundException("Tour not found");
+
+    tour.dealType = null;
+    tour.discount = 0;
+    tour.discountPrice = 0;
+    tour.dealStart = null;
+    tour.dealEnd = null;
+
+    return this.repo.save(tour);
   }
 
+  /* =========================
+        DELETE TOUR
+  ========================= */
+  async delete(id: string) {
+    const tour = await this.repo.findOne({ where: { id } });
+    if (!tour) throw new NotFoundException("Tour not found");
+
+    await this.repo.delete(id);
+    return { message: "Tour deleted successfully" };
+  }
+
+  /* =========================
+        GET DEALS ONLY
+  ========================= */
   async getDeals() {
     return this.repo.find({
       where: { dealType: Not(IsNull()) },

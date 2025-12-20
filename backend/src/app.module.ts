@@ -24,7 +24,6 @@ import { AdminModule } from "./modules/admin/admin.module";
     TestimonialsModule,
     ContactModule,
     ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRoot(ormconfig),
     AdminModule,
   ],
 })

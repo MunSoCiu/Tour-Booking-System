@@ -35,6 +35,55 @@ export class AdminService {
     };
   }
 
+  async getUserStats() {
+    const total = await this.userRepo.count();
+    const admins = await this.userRepo.count({ where: { role: "admin" } });
+    const users = await this.userRepo.count({ where: { role: "user" } });
+
+    const latest = await this.userRepo.find({
+      order: { createdAt: "DESC" },
+      take: 5,
+      select: ["id", "fullName", "email", "role", "avatar", "createdAt"],
+    });
+
+    return {
+      total,
+      admins,
+      users,
+      latest,
+    };
+  }
+
+  async getOrderStats() {
+    const total = await this.orderRepo.count();
+    const success = await this.orderRepo.count({
+      where: { status: "success" },
+    });
+    const pending = await this.orderRepo.count({
+      where: { status: "pending" },
+    });
+
+    const revenue = await this.orderRepo
+      .createQueryBuilder("o")
+      .select("SUM(o.total)", "sum")
+      .where("o.status = :s", { s: "success" })
+      .getRawOne();
+
+    const latest = await this.orderRepo.find({
+      order: { createdAt: "DESC" },
+      take: 5,
+      relations: ["user"],
+    });
+
+    return {
+      total,
+      success,
+      pending,
+      totalRevenue: Number(revenue?.sum || 0),
+      latest,
+    };
+  }
+
   /* ========================================
         2. TOP SELLING TOURS — FIX 100%
   ======================================== */

@@ -17,11 +17,34 @@ export class UsersService {
   }
 
   /* ======================
-        GET ALL USERS
+        PUBLIC — GET ALL
   ====================== */
   async findAll() {
     const users = await this.repo.find();
     return users.map((u) => this.sanitize(u));
+  }
+
+  /* ======================
+        ADMIN — GET ALL
+  ====================== */
+  async adminFindAll() {
+    const items = await this.repo.find({
+      order: { createdAt: "DESC" },
+      select: [
+        "id",
+        "email",
+        "fullName",
+        "avatar",
+        "role",
+        "status",
+        "createdAt",
+      ],
+    });
+
+    return {
+      items,
+      total: items.length,
+    };
   }
 
   /* ======================

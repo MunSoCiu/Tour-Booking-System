@@ -13,40 +13,48 @@ import { ToursService } from "@/modules/tours/tours.service";
 export class AdminToursController {
   constructor(private svc: ToursService) {}
 
+  /* =======================
+        TOURS CRUD
+  ======================= */
+
+  // GET /admin/tours
   @Get()
   async getTours() {
     const { items } = await this.svc.findAll({});
-    return items;
+    return { items };
   }
 
+  // POST /admin/tours
   @Post()
   create(@Body() body: any) {
     return this.svc.createAdminTour(body);
   }
 
+  // PUT /admin/tours/:id
   @Put(":id")
   update(@Param("id") id: string, @Body() body: any) {
     return this.svc.update(id, body);
   }
 
+  // DELETE /admin/tours/:id
   @Delete(":id")
-  delete(@Param("id") id: string) {
+  remove(@Param("id") id: string) {
     return this.svc.delete(id);
   }
 
+  /* =======================
+        DEAL CRUD
+  ======================= */
+
+  // PUT /admin/tours/:id/deal  (thêm / sửa deal)
   @Put(":id/deal")
   updateDeal(@Param("id") id: string, @Body() body: any) {
     return this.svc.updateDeal(id, body);
   }
 
-  @Put(":id/deal/remove")
+  // DELETE /admin/tours/:id/deal (xoá deal)
+  @Delete(":id/deal")
   removeDeal(@Param("id") id: string) {
-    return this.svc.updateDeal(id, {
-      dealType: null,
-      discount: 0,
-      discountPrice: 0,
-      dealStart: null,
-      dealEnd: null,
-    });
+    return this.svc.removeDeal(id);
   }
 }

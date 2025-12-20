@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import api from "@/lib/api/client";
-import Sidebar from "@/components/admin/Sidebar";
-import Navbar from "@/components/admin/Navbar";
 
 export default function DealsPage() {
   const [deals, setDeals] = useState<any[]>([]);
@@ -28,12 +26,15 @@ export default function DealsPage() {
     }
   }
 
+  async function removeDeal(id: string) {
+    if (!confirm("Xóa khuyến mãi này?")) return;
+    await api.delete(`/admin/tours/${id}/deal`);
+    loadDeals();
+  }
+
   return (
     <div className="flex bg-gray-50 min-h-screen">
-      <Sidebar />
       <div className="flex-1">
-        <Navbar />
-
         <div className="p-6">
           <h1 className="text-2xl font-semibold mb-6">Khuyến mãi</h1>
 
@@ -62,7 +63,12 @@ export default function DealsPage() {
                     </td>
                     <td className="p-3 text-right">
                       <button className="text-blue-600 mr-4">Sửa</button>
-                      <button className="text-red-600">Xóa</button>
+                      <button
+                        className="text-red-600"
+                        onClick={() => removeDeal(d.id)}
+                      >
+                        Xóa
+                      </button>
                     </td>
                   </tr>
                 ))}

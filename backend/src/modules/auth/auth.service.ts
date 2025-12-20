@@ -2,30 +2,29 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { UsersService } from "../users/users.service";
 import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt";
+import { User } from "../users/user.entity";
+
 @Injectable()
 export class AuthService {
   constructor(private users: UsersService, private jwt: JwtService) {}
 
   // =========================
-  // VALIDATE USER
+  // VALIDATE USER (ONLY CHECK)
   // =========================
-  async validateUser(email: string, pass: string) {
+  async validateUser(email: string, pass: string): Promise<User | null> {
     const user = await this.users.findByEmail(email);
     if (!user) return null;
 
     const matched = await bcrypt.compare(pass, user.password);
     if (!matched) return null;
 
-    const { password, ...safeUser } = user;
-    return safeUser;
+    return user; // ⚠️ TRẢ ENTITY ĐẦY ĐỦ (CÓ PASSWORD)
   }
 
   // =========================
-  // LOGIN
+  // LOGIN (SIGN TOKEN)
   // =========================
-  async login(email: string, password: string) {
-    const user = await this.validateUser(email, password);
-
+  async login(user: User) {
     if (!user) {
       throw new UnauthorizedException("Invalid credentials");
     }
@@ -36,9 +35,11 @@ export class AuthService {
       role: user.role,
     };
 
+    const { password, ...safeUser } = user;
+
     return {
       token: this.jwt.sign(payload),
-      user,
+      user: safeUser,
     };
   }
 
@@ -61,12 +62,16 @@ export class AuthService {
       fullName: payload.fullName,
       role: "user",
     });
-    const { password, ...safeUser } = user;
-    const token = this.jwt.sign({
+
+    const payloadJwt = {
       sub: user.id,
       email: user.email,
       role: user.role,
-    });
-    return { token, user: safeUser };
+    };
+
+    return {
+      token: this.jwt.sign(payloadJwt),
+      user,
+    };
   }
 }

@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Sidebar from "@/components/admin/Sidebar";
-import Navbar from "@/components/admin/Navbar";
 import StatCard from "@/components/admin/StatCard";
 import LineChartCard from "@/components/admin/LineChartCard";
 import TopToursCard from "@/components/admin/TopToursCard";
@@ -49,9 +47,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex bg-gray-50 min-h-screen">
-      <Sidebar />
       <div className="flex-1">
-        <Navbar />
         <div className="p-6">
           <h1 className="text-2xl font-semibold">Bảng điều khiển tổng quan</h1>
           <p className="text-gray-600 mt-1">

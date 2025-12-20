@@ -35,7 +35,7 @@ export default function StatCard({ stats }: { stats: any }) {
     },
     {
       label: "Doanh thu",
-      value: stats.totalRevenue.toLocaleString("vi-VN") + " đ",
+      value: (stats?.totalRevenue ?? 0).toLocaleString("vi-VN") + " đ",
       icon: <DollarSign className="w-6 h-6 text-purple-600" />,
       bg: "bg-purple-50",
     },
