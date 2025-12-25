@@ -1,0 +1,37 @@
+services:
+  backend:
+    build: .
+    container_name: gotour-backend
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - DB_HOST=db
+      - DB_USER=gotour
+      - DB_PASS=gotourpass
+      - DB_NAME=gotourdb
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: gotour-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: gotourdb
+      MYSQL_USER: gotour
+      MYSQL_PASSWORD: gotourpass
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
+volumes:
+  db_data:
