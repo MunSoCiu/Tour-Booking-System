@@ -1,37 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import api from "@/lib/api/client";
 
 export default function TourModal({
+  tour,
   onClose,
   refresh,
 }: {
+  tour?: any;
   onClose: () => void;
   refresh: () => void;
 }) {
-  const [form, setForm] = useState({
-    title: "",
-    price: "",
-    image: "",
-  });
+  const [form, setForm] = useState({ title: "", price: "", image: "" });
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (tour) {
+      setForm({
+        title: tour.title || "",
+        price: tour.price?.toString() || "",
+        image: tour.image || "",
+      });
+    }
+  }, [tour]);
 
   async function handleSubmit() {
     try {
       setLoading(true);
 
-      await api.post("/tours", {
+      const payload = {
         title: form.title,
         price: Number(form.price),
         image: form.image,
-      });
+      };
 
-      refresh(); // Reload table
-      onClose(); // Close modal
+      if (tour) {
+        await api.put(`/admin/tours/${tour.id}`, payload);
+      } else {
+        await api.post("/admin/tours", payload);
+      }
+
+      refresh();
+      onClose();
     } catch (err: any) {
-      console.error(err);
-      alert(err.response?.data?.message || "Error creating tour");
+      alert(err.response?.data?.message || "Lỗi thao tác tour");
     } finally {
       setLoading(false);
     }

@@ -1,13 +1,23 @@
+"use client";
 import { Search, Calendar, FileDown } from "lucide-react";
 
-export default function PaymentSearch() {
+export default function PaymentSearch({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
   return (
     <div className="flex flex-wrap gap-3 items-center">
       {/* SEARCH */}
-      <div className="relative flex-1 min-w-[260px]">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+      <div className="relative max-w-md">
+        <Search className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
+
         <input
-          placeholder="Tìm theo mã đơn hàng, mã giao dịch..."
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Tìm theo mã đơn hoặc phương thức thanh toán…"
           className="w-full border rounded-xl py-3 pl-12 pr-4 outline-none focus:border-blue-500"
         />
       </div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import ProfileSidebar, {
   ProfileTab,
 } from "@/components/profile/ProfileSidebar";
+import PaymentMethods from "@/components/profile/PaymentMethods";
 
 import ProfileDetails from "@/components/profile/ProfileDetails";
 import ProfileEditForm from "@/components/profile/ProfileEditForm";
@@ -23,11 +24,7 @@ export default function ProfilePage() {
           {tab === "edit" && <ProfileEditForm onDone={() => setTab("info")} />}
           {tab === "password" && <ChangePasswordForm />}
           {tab === "orders" && <TripHistory />}
-          {tab === "payment" && (
-            <div className="bg-white p-6 rounded-xl border">
-              💳 Chức năng thanh toán (sẽ bổ sung)
-            </div>
-          )}
+          {tab === "payment" && <PaymentMethods />}
         </div>
       </div>
     </div>

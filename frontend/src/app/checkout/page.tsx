@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import ContactInfo from "@/components/checkout/ContactInfo";
 import PaymentMethod from "@/components/checkout/PaymentMethod";
 import PaymentSummary from "@/components/checkout/PaymentSummary";
+import { useRouter } from "next/navigation";
+import { authFetch } from "@/lib/api/authFetch";
 
 export default function CheckoutPage() {
   const API = process.env.NEXT_PUBLIC_API_URL;
@@ -13,6 +15,7 @@ export default function CheckoutPage() {
   // =============================
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   // =============================
   // Contact Info
@@ -36,7 +39,7 @@ export default function CheckoutPage() {
   // Load Cart
   // =============================
   useEffect(() => {
-    fetch(`${API}/api/cart`)
+    fetch(`${API}/cart`)
       .then((res) => res.json())
       .then((data) => {
         const list = Array.isArray(data) ? data : data.items ?? [];
@@ -58,29 +61,24 @@ export default function CheckoutPage() {
   // Handle Payment
   // =============================
   const handlePayment = async () => {
-    if (!contact.name || !contact.email || !contact.phone) {
-      alert("Vui lòng nhập đầy đủ thông tin liên hệ.");
-      return;
-    }
+    const itemsPayload = items.map((i) => ({
+      tourId: i.tour.id,
+      qty: i.qty,
+    }));
 
-    const res = await fetch(`${API}/api/orders`, {
+    const res = await authFetch(`${API}/orders`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contact,
-        paymentMethod,
-        items,
-      }),
+      body: JSON.stringify({ items: itemsPayload }),
     });
 
-    const data = await res.json();
-
     if (!res.ok) {
-      window.location.href = "/checkout?status=failed";
+      alert("Tạo đơn hàng thất bại");
       return;
     }
 
-    window.location.href = "/bookings/success";
+    const order = await res.json();
+
+    router.push(`/payment?orderId=${order.id}`);
   };
 
   // =============================

@@ -1216,45 +1216,84 @@ async function run() {
     )
   );
   console.log("🛒 Cart items: 20");
+  /* ======================================================
+   ORDERS — 20 ORDERS (USER ONLY, ROTATE USERS)
+====================================================== */
 
-  /* ORDERS */
   const orderRepo = ds.getRepository(Order);
+  const normalUsers = users.filter((u) => u.role === "user");
 
-  const orders = await Promise.all(
-    [...Array(20)].map((_, i) => {
-      const tour = savedTours[i % savedTours.length];
-      return orderRepo.save(
-        orderRepo.create({
-          code: `ORD-${2000 + i}`,
-          userId: users[i % users.length].id,
-          items: [{ tourId: tour.id, qty: 1, price: tour.price }],
-          total: tour.price,
-          status: i % 3 === 0 ? "success" : "pending",
+  const orders: Order[] = [];
+  let orderCounter = 0;
+
+  while (orders.length < 20) {
+    const user = normalUsers[orderCounter % normalUsers.length];
+    const tour = savedTours[orderCounter % savedTours.length];
+
+    const qty = 1 + (orderCounter % 4); // 1–4 người
+    const discount = tour.discount ?? 0;
+    const price = tour.price;
+    const finalPrice = tour.discountPrice ?? price;
+
+    const order = await orderRepo.save(
+      orderRepo.create({
+        code: `ORD-${2000 + orderCounter}`,
+        userId: user.id,
+        items: [
+          {
+            tourId: tour.id,
+            tourTitle: tour.title,
+            tourImage: tour.image,
+            qty,
+            price,
+            discount,
+            finalPrice,
+          },
+        ],
+        total: finalPrice * qty,
+        status:
+          orderCounter % 3 === 0
+            ? "success"
+            : orderCounter % 3 === 1
+            ? "pending"
+            : "cancelled",
+      })
+    );
+
+    orders.push(order);
+    orderCounter++;
+  }
+
+  console.log("📦 Orders created:", orders.length);
+
+  /* PAYMENTS */
+  const payRepo = ds.getRepository(Payment);
+
+  const PAYMENT_METHODS = [
+    { method: "momo" },
+    { method: "vnpay" },
+    { method: "bank:VCB" },
+    { method: "bank:TCB" },
+    { method: "bank:BIDV" },
+  ];
+
+  await Promise.all(
+    orders.map((o, i) => {
+      const pm = PAYMENT_METHODS[i % PAYMENT_METHODS.length];
+
+      return payRepo.save(
+        payRepo.create({
+          orderId: o.id,
+          userId: o.userId,
+          amount: o.total,
+          method: pm.method,
+          status: o.status,
         })
       );
     })
   );
 
-  console.log("📦 Orders:", orders.length);
-
-  /* PAYMENTS */
-  const payRepo = ds.getRepository(Payment);
-
-  await Promise.all(
-    orders.map((o, i) =>
-      payRepo.save(
-        payRepo.create({
-          orderId: o.id,
-          userId: o.userId,
-          amount: o.total,
-          method: i % 2 === 0 ? "card" : "bank",
-          status: o.status,
-        })
-      )
-    )
-  );
-
-  console.log("💳 Payments created");
+  console.log("💳 Payments created ");
 
   console.log("🔥 SEED COMPLETED!");
   process.exit(0);

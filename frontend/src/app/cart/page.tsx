@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import CartItem from "@/components/cart/CartItem";
 import CartSummary from "@/components/cart/CartSummary";
+import { authFetch } from "@/lib/api/authFetch";
 
 export default function CartPage() {
   const [items, setItems] = useState<any[]>([]);
@@ -14,24 +15,17 @@ export default function CartPage() {
   // FETCH CART
   // ============================================
   useEffect(() => {
-    fetch(`${API}/cart`)
+    authFetch(`${API}/cart`)
       .then((res) => res.json())
-      .then((data) => {
-        const list = Array.isArray(data) ? data : data.items ?? [];
-        setItems(list);
-      })
-      .catch(() => setItems([]))
+      .then(setItems)
       .finally(() => setLoading(false));
-  }, [API]);
+  }, []);
 
   // ============================================
   // REMOVE ITEM
   // ============================================
   const removeItem = async (id: number) => {
-    await fetch(`${API}/cart/${id}`, {
-      method: "DELETE",
-    });
-
+    await authFetch(`${API}/cart/${id}`, { method: "DELETE" });
     setItems((prev) => prev.filter((i) => i.id !== id));
   };
 
@@ -39,12 +33,11 @@ export default function CartPage() {
   // UPDATE QUANTITY
   // ============================================
   const updateQty = async (id: number, quantity: number) => {
-    if (quantity < 1) return;
-
     await fetch(`${API}/cart/${id}`, {
-      method: "PATCH",
+      method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ quantity }),
+      credentials: "include",
+      body: JSON.stringify({ qty: quantity }),
     });
 
     setItems((prev) =>
@@ -56,8 +49,8 @@ export default function CartPage() {
   // CART SUMMARY DATA
   // ============================================
   const summaryItems = items.map((item) => ({
-    name: item.title,
-    price: item.price * item.quantity,
+    name: item.tour.title,
+    price: item.tour.price * item.qty,
   }));
 
   const serviceFee = 15000; // 15k phí dịch vụ demo
@@ -80,25 +73,22 @@ export default function CartPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
-      {/* LEFT: CART ITEMS */}
       <div className="space-y-4 md:col-span-2">
         {items.map((item) => (
           <CartItem
             key={item.id}
-            image={item.image}
-            title={item.title}
-            date={item.date ?? "Chưa chọn ngày"}
-            guests={`${item.quantity} khách`}
-            price={item.price}
-            quantity={item.quantity}
-            // 🔥 Thêm event điều khiển
+            image={item.tour.image}
+            title={item.tour.title}
+            date="Chưa chọn ngày"
+            guests={`${item.qty} khách`}
+            price={item.tour.price}
+            quantity={item.qty}
             onRemove={() => removeItem(item.id)}
-            onQuantityChange={(qty: number) => updateQty(item.id, qty)}
+            onQuantityChange={(qty) => updateQty(item.id, qty)}
           />
         ))}
       </div>
 
-      {/* RIGHT: SUMMARY */}
       <CartSummary items={summaryItems} serviceFee={serviceFee} />
     </div>
   );

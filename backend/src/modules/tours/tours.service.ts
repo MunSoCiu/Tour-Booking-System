@@ -73,12 +73,13 @@ export class ToursService {
   async createAdminTour(dto: CreateTourDto) {
     const tour = this.repo.create({
       title: dto.title,
-      slug: dto.slug ?? dto.title.toLowerCase().replace(/\s+/g, "-"),
+      slug: dto.slug || dto.title.toLowerCase().replace(/\s+/g, "-"),
       price: dto.price,
-      image: dto.image,
-      description: dto.description ?? "",
-      location: dto.location ?? "",
-      duration: dto.duration ?? "1N",
+      image: dto.image || null,
+      description: dto.description || "Đang cập nhật",
+      location: dto.location || "Đang cập nhật",
+      duration: dto.duration || "1N",
+      itinerary: dto.itinerary || [],
     });
 
     return this.repo.save(tour);

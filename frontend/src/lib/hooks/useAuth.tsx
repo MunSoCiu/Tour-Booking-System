@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import api from "@/lib/api/client";
-import Cookies from "js-cookie";
 import { User } from "@/types/user";
 
 type AuthContextType = {
@@ -17,67 +16,80 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  async function refreshProfile() {
-    try {
-      const res = await api.get("/auth/profile");
-      const profile = res.data.user ?? res.data;
-
-      setUser(profile);
-      localStorage.setItem("user", JSON.stringify(profile));
-    } catch (err) {
-      console.error("refreshProfile failed", err);
-    }
-  }
-
+  /* =========================
+      INIT AUTH (LOCALSTORAGE)
+  ========================= */
   useEffect(() => {
-    const localUser = localStorage.getItem("user");
-    if (localUser) {
-      setUser(JSON.parse(localUser));
-      setLoading(false);
-      return;
-    }
+    const storedUser = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
 
-    const token = Cookies.get("token");
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
-    api
-      .get("/auth/profile")
-      .then((res) => setUser(res.data.user ?? res.data))
-      .catch(() => {
-        Cookies.remove("token");
+    if (storedUser && token) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
         setUser(null);
-      })
-      .finally(() => setLoading(false));
+      }
+    }
+
+    setLoading(false);
   }, []);
 
+  /* =========================
+      LOGIN
+  ========================= */
   async function login(email: string, password: string) {
     const res = await api.post("/auth/login", { email, password });
 
     const token = res.data.access_token || res.data.token;
+    if (!token) {
+      throw new Error("Token not found");
+    }
 
-    if (token) Cookies.set("token", token, { expires: 7 });
+    // 🔐 lưu token
+    localStorage.setItem("token", token);
 
-    const profile = await api
-      .get("/auth/profile")
-      .then((r) => r.data.user ?? r.data);
+    // 👤 lấy profile
+    const profileRes = await api.get("/auth/profile");
+    const profile = profileRes.data.user ?? profileRes.data;
 
+    localStorage.setItem("user", JSON.stringify(profile));
     setUser(profile);
+
     return profile;
   }
 
+  /* =========================
+      REGISTER
+  ========================= */
   async function register(payload: any) {
     const res = await api.post("/auth/register", payload);
     return res.data;
   }
 
+  /* =========================
+      REFRESH PROFILE (OPTIONAL)
+  ========================= */
+  async function refreshProfile() {
+    try {
+      const res = await api.get("/auth/profile");
+      const profile = res.data.user ?? res.data;
+
+      localStorage.setItem("user", JSON.stringify(profile));
+      setUser(profile);
+    } catch (err) {
+      console.error("refreshProfile failed", err);
+    }
+  }
+
+  /* =========================
+      LOGOUT
+  ========================= */
   function logout() {
-    Cookies.remove("token");
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);

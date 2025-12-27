@@ -145,7 +145,7 @@ export default function DealDetailPage({
           </div>
 
           <PriceBox
-            tour={{ ...tour, price: discounted?.newPrice }}
+            tour={tour}
             date={date}
             setDate={setDate}
             guests={guests}

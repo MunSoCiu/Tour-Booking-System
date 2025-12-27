@@ -4,6 +4,7 @@ import { formatPrice } from "@/lib/utils/formatPrice";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useState } from "react";
+import { authFetch } from "@/lib/api/authFetch";
 
 export default function PriceBox({
   tour,
@@ -48,10 +49,8 @@ export default function PriceBox({
     if (!isLoggedIn) return requireLogin();
 
     try {
-      const res = await fetch(`${apiUrl}/cart`, {
+      const res = await authFetch(`${apiUrl}/cart`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // 🔥 bắt buộc
         body: JSON.stringify({
           tourId: tour.id,
           qty: guests,
@@ -59,6 +58,7 @@ export default function PriceBox({
       });
 
       if (!res.ok) throw new Error();
+      router.push("/cart");
       alert("Thêm giỏ hàng thành công!");
     } catch {
       alert("Lỗi thêm giỏ hàng");
@@ -71,24 +71,25 @@ export default function PriceBox({
   const checkout = async () => {
     if (!isLoggedIn) return requireLogin();
 
-    try {
-      const res = await fetch(`${apiUrl}/orders`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          items: [{ tourId: tour.id, qty: guests, price: tour.price }],
-          date,
-        }),
-      });
-
-      if (!res.ok) throw new Error();
-
-      const order = await res.json();
-      alert("Đặt tour thành công! Mã đơn: " + order.code);
-    } catch {
-      alert("Đặt tour thất bại");
+    if (!date) {
+      alert("Vui lòng chọn ngày khởi hành");
+      return;
     }
+
+    const res = await authFetch(`${apiUrl}/orders`, {
+      method: "POST",
+      body: JSON.stringify({
+        items: [{ tourId: tour.id, qty: guests }],
+      }),
+    });
+
+    if (!res.ok) {
+      alert("Đặt tour thất bại");
+      return;
+    }
+
+    const order = await res.json();
+    router.push(`/orders?created=${order.code}`);
   };
 
   return (

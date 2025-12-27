@@ -23,28 +23,33 @@ export class CreateTourDto {
   @IsString()
   title: string;
 
+  @IsOptional()
   @IsString()
-  slug: string;
+  slug?: string;
 
+  @IsOptional()
   @IsString()
-  location: string;
+  location?: string;
 
+  @IsOptional()
   @IsString()
-  duration: string;
+  duration?: string;
 
   @IsInt()
   @Min(0)
   price: number;
 
+  @IsOptional()
   @IsString()
-  description: string;
+  description?: string;
 
   @IsOptional()
   @IsString()
   image?: string;
 
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => TourItineraryDto)
-  itinerary: TourItineraryDto[];
+  itinerary?: TourItineraryDto[];
 }

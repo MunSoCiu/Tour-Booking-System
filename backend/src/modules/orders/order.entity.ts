@@ -27,8 +27,12 @@ export class Order {
   @Column("json")
   items: {
     tourId: string;
+    tourTitle: string;
+    tourImage: string;
     qty: number;
     price: number;
+    discount: number;
+    finalPrice: number;
   }[];
 
   @Column("int")

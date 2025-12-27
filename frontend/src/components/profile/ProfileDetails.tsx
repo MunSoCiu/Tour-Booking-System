@@ -52,32 +52,6 @@ export default function ProfileDetails({ onEdit }: { onEdit: () => void }) {
   return (
     <div className="bg-white border shadow-sm rounded-xl p-6">
       <div className="flex justify-between items-center">
-        {/* AVATAR */}
-        <div className="relative group cursor-pointer">
-          <Image
-            src={`http://localhost:3001/uploads/avatars/1.jpg`}
-            width={100}
-            height={100}
-            alt="Avatar"
-            className="rounded-full border object-cover"
-            onClick={() => fileRef.current?.click()}
-          />
-
-          <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-            <span className="text-white text-sm">
-              {uploading ? "Đang tải..." : "Đổi ảnh"}
-            </span>
-          </div>
-
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={handleFileChange}
-          />
-        </div>
-
         <div>
           <h3 className="text-xl font-semibold">Thông tin cá nhân</h3>
           <p className="text-gray-500 text-sm">
