@@ -18,6 +18,7 @@ import { JwtAuthGuard } from "@/modules/auth/jwt.guard";
 export class AdminToursController {
   constructor(private svc: ToursService) {}
 
+
   /* =======================
         TOURS CRUD
   ======================= */
@@ -41,11 +42,17 @@ export class AdminToursController {
     return this.svc.delete(id);
   }
 
+
+  /* =======================
+        DEAL CRUD
+  ======================= */
+
   // DELETE /admin/tours/:id/deal (xoá deal)
   @Delete(":id/deal")
   removeDeal(@Param("id") id: string) {
     return this.svc.removeDeal(id);
   }
+  
   @Put(":id/deal")
   updateDeal(@Param("id") id: string, @Body() dto: UpdateDealDto) {
     return this.svc.updateDeal(id, dto);
@@ -55,4 +62,5 @@ export class AdminToursController {
   create(@Body() dto: CreateTourDto) {
     return this.svc.createAdminTour(dto);
   }
+
 }

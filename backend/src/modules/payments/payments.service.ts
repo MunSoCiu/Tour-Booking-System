@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Payment } from "./payment.entity";
+<<<<<<< HEAD
 import { Order } from "@/modules/orders/order.entity";
 
 @Injectable()
@@ -163,5 +164,23 @@ export class PaymentsService {
       .getManyAndCount();
 
     return { items, total, page, limit };
+=======
+
+@Injectable()
+export class PaymentsService {
+  constructor(@InjectRepository(Payment) private repo: Repository<Payment>) {}
+
+  create(payload: Partial<Payment>) {
+    const p = this.repo.create(payload);
+    return this.repo.save(p);
+  }
+
+  findByUser(userId: string) {
+    return this.repo.findBy({ userId });
+  }
+
+  updateStatus(id: string, status: string) {
+    return this.repo.update(id, { status });
+>>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
   }
 }

@@ -6,21 +6,15 @@ import {
   Body,
   UseGuards,
   ForbiddenException,
-  Req,
-  UseInterceptors,
-  UploadedFile,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { JwtAuthGuard } from "../auth/jwt.guard";
-import { FileInterceptor } from "@nestjs/platform-express";
-import { User } from "./user.entity";
-import { Express } from "express";
-import { diskStorage } from "multer";
 
 @Controller("users")
 export class UsersController {
   constructor(private svc: UsersService) {}
 
+  /** ONLY ADMIN CAN VIEW ALL USERS */
   @UseGuards(JwtAuthGuard)
   @Get()
   async getAll(@Body("role") role: string) {
@@ -32,6 +26,7 @@ export class UsersController {
     return this.svc.findAll();
   }
 
+  /** USER OR ADMIN CAN VIEW PROFILE */
   @UseGuards(JwtAuthGuard)
   @Get(":id")
   async getOne(
@@ -45,66 +40,25 @@ export class UsersController {
     return this.svc.findById(id);
   }
 
+  /** USER CAN UPDATE ONLY THEIR OWN PROFILE — ADMIN CAN UPDATE ANYONE */
   @UseGuards(JwtAuthGuard)
   @Put(":id")
   async update(
     @Param("id") id: string,
-    @Body() body: Partial<User>,
-    @Req() req: any
+    @Body() body: Partial<any>,
+    @Body("userId") userId: string,
+    @Body("role") role: string
   ) {
-    const { sub: userId, role } = req.user;
-
+    // ❌ User cannot self-promote to admin
     if (body.role && role !== "admin") {
-      throw new ForbiddenException("Không thể thay đổi quyền");
+      throw new ForbiddenException("Không thể thay đổi quyền của bạn");
     }
 
+    // ❌ User cannot update another user's profile
     if (userId !== id && role !== "admin") {
-      throw new ForbiddenException("Không có quyền cập nhật");
+      throw new ForbiddenException("Bạn không có quyền cập nhật người khác");
     }
 
     return this.svc.update(id, body);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Put(":id/password")
-  changePassword(
-    @Param("id") id: string,
-    @Body() body: { oldPassword: string; newPassword: string },
-    @Req() req: any
-  ) {
-    if (req.user.sub !== id) {
-      throw new ForbiddenException("Không có quyền");
-    }
-    return this.svc.changePassword(id, body.oldPassword, body.newPassword);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Put(":id/avatar")
-  @UseInterceptors(
-    FileInterceptor("file", {
-      storage: diskStorage({
-        destination: "./uploads/avatars",
-        filename: (_, file, cb) => {
-          const ext = file.originalname.split(".").pop();
-          const name = `${Date.now()}-${Math.random()
-            .toString(36)
-            .slice(2)}.${ext}`;
-          cb(null, name);
-        },
-      }),
-    })
-  )
-  uploadAvatar(
-    @UploadedFile() file: Express.Multer.File,
-    @Param("id") id: string,
-    @Req() req: any
-  ) {
-    if (req.user.sub !== id) {
-      throw new ForbiddenException("Không có quyền");
-    }
-
-    return this.svc.update(id, {
-      avatar: `/uploads/avatars/${file.filename}`,
-    });
   }
 }

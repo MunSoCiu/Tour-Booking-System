@@ -42,10 +42,4 @@ export class User {
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
-
-  @Column({ type: "date", nullable: true })
-  birthDate?: Date;
-
-  @Column({ nullable: true })
-  address?: string;
 }

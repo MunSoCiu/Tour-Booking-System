@@ -4,8 +4,11 @@ import { useEffect, useState } from "react";
 import ContactInfo from "@/components/checkout/ContactInfo";
 import PaymentMethod from "@/components/checkout/PaymentMethod";
 import PaymentSummary from "@/components/checkout/PaymentSummary";
+<<<<<<< HEAD
 import { useRouter } from "next/navigation";
 import { authFetch } from "@/lib/api/authFetch";
+=======
+>>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
 
 export default function CheckoutPage() {
   const API = process.env.NEXT_PUBLIC_API_URL;
@@ -15,7 +18,10 @@ export default function CheckoutPage() {
   // =============================
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+<<<<<<< HEAD
   const router = useRouter();
+=======
+>>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
 
   // =============================
   // Contact Info
@@ -39,7 +45,11 @@ export default function CheckoutPage() {
   // Load Cart
   // =============================
   useEffect(() => {
+<<<<<<< HEAD
     fetch(`${API}/cart`)
+=======
+    fetch(`${API}/api/cart`)
+>>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
       .then((res) => res.json())
       .then((data) => {
         const list = Array.isArray(data) ? data : data.items ?? [];
@@ -61,6 +71,7 @@ export default function CheckoutPage() {
   // Handle Payment
   // =============================
   const handlePayment = async () => {
+<<<<<<< HEAD
     const itemsPayload = items.map((i) => ({
       tourId: i.tour.id,
       qty: i.qty,
@@ -79,6 +90,32 @@ export default function CheckoutPage() {
     const order = await res.json();
 
     router.push(`/payment?orderId=${order.id}`);
+=======
+    if (!contact.name || !contact.email || !contact.phone) {
+      alert("Vui lòng nhập đầy đủ thông tin liên hệ.");
+      return;
+    }
+
+    const res = await fetch(`${API}/api/orders`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contact,
+        paymentMethod,
+        items,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert("Thanh toán thất bại. Vui lòng thử lại.");
+      return;
+    }
+
+    // Thanh toán thành công → chuyển trang
+    window.location.href = `/orders/${data.id}`;
+>>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
   };
 
   // =============================

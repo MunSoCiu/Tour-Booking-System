@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, Like, IsNull, Not } from "typeorm";
 import { Tour } from "./tour.entity";
-import { CreateTourDto } from "@/modules/tours/dto/create-tour.dto";
 
 @Injectable()
 export class ToursService {
@@ -70,16 +69,15 @@ export class ToursService {
   /* =========================
         ADMIN CREATE TOUR
   ========================= */
-  async createAdminTour(dto: CreateTourDto) {
+  async createAdminTour(data: any) {
     const tour = this.repo.create({
-      title: dto.title,
-      slug: dto.slug || dto.title.toLowerCase().replace(/\s+/g, "-"),
-      price: dto.price,
-      image: dto.image || null,
-      description: dto.description || "Đang cập nhật",
-      location: dto.location || "Đang cập nhật",
-      duration: dto.duration || "1N",
-      itinerary: dto.itinerary || [],
+      title: data.title,
+      slug: data.title.toLowerCase().replace(/\s+/g, "-"),
+      price: data.price,
+      image: data.image,
+      description: data.description ?? "",
+      location: data.location ?? "",
+      duration: data.duration ?? "1N",
     });
 
     return this.repo.save(tour);

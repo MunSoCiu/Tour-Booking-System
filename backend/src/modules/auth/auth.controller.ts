@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import {
   Controller,
   Post,
@@ -9,6 +10,10 @@ import {
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { JwtAuthGuard } from "./jwt.guard";
+=======
+import { Controller, Post, Body, BadRequestException } from "@nestjs/common";
+import { AuthService } from "./auth.service";
+>>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
 
 @Controller("auth")
 export class AuthController {
@@ -28,6 +33,7 @@ export class AuthController {
   @Post("login")
   async login(@Body() body: { email: string; password: string }) {
     const user = await this.authService.validateUser(body.email, body.password);
+<<<<<<< HEAD
     if (!user) throw new BadRequestException("Invalid credentials");
     return this.authService.login(user);
   }
@@ -37,4 +43,11 @@ export class AuthController {
   getProfile(@Req() req) {
     return this.authService.getProfile(req.user.sub);
   }
+=======
+
+    if (!user) throw new BadRequestException("Invalid credentials");
+
+    return this.authService.login(user);
+  }
+>>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
 }

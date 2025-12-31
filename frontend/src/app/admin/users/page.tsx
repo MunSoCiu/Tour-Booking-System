@@ -73,7 +73,13 @@ export default function UsersPage() {
                     <button
                       onClick={() => toggleRole(u.id, u.role)}
                       className="text-blue-600 hover:underline"
+<<<<<<< HEAD
                     ></button>
+=======
+                    >
+                      Nâng quyền
+                    </button>
+>>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
                   ) : (
                     <span className="text-gray-400 text-sm cursor-not-allowed">
                       Không thể đổi

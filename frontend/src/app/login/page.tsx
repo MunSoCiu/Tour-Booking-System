@@ -47,7 +47,11 @@ export default function LoginPage() {
       if (data.user.role === "admin") {
         window.location.href = "/admin/dashboard";
       } else {
+<<<<<<< HEAD
         window.location.href = "/";
+=======
+        window.location.href = "/user";
+>>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
       }
     } catch (error) {
       setLoading(false);

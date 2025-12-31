@@ -5,10 +5,10 @@ import { OrdersService } from "./orders.service";
 import { OrdersController } from "./orders.controller";
 import { Tour } from "../tours/tour.entity";
 import { CartItem } from "../cart/cart.entity";
-import { Payment } from "@/modules/payments/payment.entity";
+import { Payments } from "@/modules/payments/payment.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, Tour, CartItem, Payment])],
+  imports: [TypeOrmModule.forFeature([Order, Tour, CartItem, Payments])],
   providers: [OrdersService],
   controllers: [OrdersController],
   exports: [OrdersService],

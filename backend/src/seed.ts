@@ -10,7 +10,7 @@ import { Tour } from "./modules/tours/tour.entity";
 import { Testimonial } from "./modules/testimonials/testimonial.entity";
 import { CartItem } from "./modules/cart/cart.entity";
 import { Order } from "./modules/orders/order.entity";
-import { Payment } from "./modules/payments/payment.entity";
+import { Payments } from "./modules/payments/payment.entity";
 import * as bcrypt from "bcrypt";
 
 /* ======================================================
@@ -23,9 +23,6 @@ const USERS = [
     fullName: "Ad1",
     images: "/avatars/1.jpg",
     role: "admin",
-    birthDate: "1990-01-01",
-    phone: "0909000001",
-    address: "Hà Nội",
   },
   {
     email: "admin2@gotour.test",
@@ -33,9 +30,6 @@ const USERS = [
     fullName: "Ad2",
     images: "/avatars/2.jpg",
     role: "admin",
-    birthDate: "1991-02-02",
-    phone: "0909000002",
-    address: "TP HCM",
   },
   {
     email: "admin3@gotour.test",
@@ -43,59 +37,36 @@ const USERS = [
     fullName: "Ad3",
     images: "/avatars/3.jpg",
     role: "admin",
-    birthDate: "1991-02-02",
-    phone: "0979704951",
-    address: "Hà Nội",
   },
   {
     email: "user1@gotour.test",
     password: "password123",
     fullName: "Nguyễn Văn A",
-    images: "/avatars/3.jpg",
     role: "user",
-    birthDate: "1995-05-12",
-    phone: "0909123456",
-    address: "123 Đường ABC, Quận 1, TP HCM",
   },
   {
     email: "user2@gotour.test",
     password: "password123",
     fullName: "Trần Thị B",
-    images: "/avatars/2.jpg",
     role: "user",
-    birthDate: "1997-08-20",
-    phone: "0909456789",
-    address: "Đà Nẵng",
   },
   {
     email: "user3@gotour.test",
     password: "password123",
     fullName: "Phạm Hoàng C",
-    images: "/avatars/1.jpg",
     role: "user",
-    birthDate: "1994-11-02",
-    phone: "0911222333",
-    address: "Hà Nội",
   },
   {
     email: "user4@gotour.test",
     password: "password123",
     fullName: "Lê Minh D",
-    images: "/avatars/1.jpg",
     role: "user",
-    birthDate: "1994-11-02",
-    phone: "0911222333",
-    address: "Hà Nội",
   },
   {
     email: "user5@gotour.test",
     password: "password123",
     fullName: "Võ Thu E",
-    images: "/avatars/3.jpg",
     role: "user",
-    birthDate: "1997-08-20",
-    phone: "0909456789",
-    address: "Đà Nẵng",
   },
 ];
 
@@ -1106,7 +1077,7 @@ async function run() {
   /** Disable FK to allow truncating tables safely */
   await ds.query("SET FOREIGN_KEY_CHECKS = 0");
 
-  await ds.getRepository(Payment).clear();
+  await ds.getRepository(Payments).clear();
   await ds.getRepository(Order).clear();
   await ds.getRepository(CartItem).clear();
   await ds.getRepository(Testimonial).clear();
@@ -1127,9 +1098,6 @@ async function run() {
           fullName: u.fullName,
           avatar: u.images || null,
           role: u.role as "admin" | "user",
-          birthDate: new Date(u.birthDate),
-          phone: u.phone,
-          address: u.address,
           status: "active",
         })
       )
@@ -1216,84 +1184,45 @@ async function run() {
     )
   );
   console.log("🛒 Cart items: 20");
-  /* ======================================================
-   ORDERS — 20 ORDERS (USER ONLY, ROTATE USERS)
-====================================================== */
 
+  /* ORDERS */
   const orderRepo = ds.getRepository(Order);
-  const normalUsers = users.filter((u) => u.role === "user");
 
-  const orders: Order[] = [];
-  let orderCounter = 0;
-
-  while (orders.length < 20) {
-    const user = normalUsers[orderCounter % normalUsers.length];
-    const tour = savedTours[orderCounter % savedTours.length];
-
-    const qty = 1 + (orderCounter % 4); // 1–4 người
-    const discount = tour.discount ?? 0;
-    const price = tour.price;
-    const finalPrice = tour.discountPrice ?? price;
-
-    const order = await orderRepo.save(
-      orderRepo.create({
-        code: `ORD-${2000 + orderCounter}`,
-        userId: user.id,
-        items: [
-          {
-            tourId: tour.id,
-            tourTitle: tour.title,
-            tourImage: tour.image,
-            qty,
-            price,
-            discount,
-            finalPrice,
-          },
-        ],
-        total: finalPrice * qty,
-        status:
-          orderCounter % 3 === 0
-            ? "success"
-            : orderCounter % 3 === 1
-            ? "pending"
-            : "cancelled",
-      })
-    );
-
-    orders.push(order);
-    orderCounter++;
-  }
-
-  console.log("📦 Orders created:", orders.length);
-
-  /* PAYMENTS */
-  const payRepo = ds.getRepository(Payment);
-
-  const PAYMENT_METHODS = [
-    { method: "momo" },
-    { method: "vnpay" },
-    { method: "bank:VCB" },
-    { method: "bank:TCB" },
-    { method: "bank:BIDV" },
-  ];
-
-  await Promise.all(
-    orders.map((o, i) => {
-      const pm = PAYMENT_METHODS[i % PAYMENT_METHODS.length];
-
-      return payRepo.save(
-        payRepo.create({
-          orderId: o.id,
-          userId: o.userId,
-          amount: o.total,
-          method: pm.method,
-          status: o.status,
+  const orders = await Promise.all(
+    [...Array(20)].map((_, i) => {
+      const tour = savedTours[i % savedTours.length];
+      return orderRepo.save(
+        orderRepo.create({
+          code: `ORD-${2000 + i}`,
+          userId: users[i % users.length].id,
+          items: [{ tourId: tour.id, qty: 1, price: tour.price }],
+          total: tour.price,
+          status: i % 3 === 0 ? "success" : "pending",
         })
       );
     })
   );
 
-  console.log("💳 Payments created ");
+  console.log("📦 Orders:", orders.length);
+
+  /* PAYMENTS */
+  const payRepo = ds.getRepository(Payments);
+
+  await Promise.all(
+    orders.map((o, i) =>
+      payRepo.save(
+        payRepo.create({
+          orderId: o.id,
+          userId: o.userId,
+          amount: o.total,
+          method: i % 2 === 0 ? "card" : "bank",
+          status: o.status,
+        })
+      )
+    )
+  );
+
+  console.log("💳 Payments created");
 
   console.log("🔥 SEED COMPLETED!");
   process.exit(0);
