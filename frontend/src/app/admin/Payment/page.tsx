@@ -7,7 +7,7 @@ import PaymentSearch from "@/components/payments/PaymentSearch";
 import Pagination from "@/components/payments/Pagination";
 import { fetchMyPayments } from "@/lib/api/payments";
 
-export default function PaymentHistoryPage() {
+export default function AdminPaymentsPage() {
   const [status, setStatus] = useState("all");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);

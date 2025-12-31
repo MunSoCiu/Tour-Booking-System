@@ -129,4 +129,20 @@ export class PaymentsController {
   history(@Param("userId") userId: string) {
     return this.paymentsService.findByUser(userId);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get("admin")
+  getAllPayments(
+    @Query("status") status?: string,
+    @Query("search") search?: string,
+    @Query("page") page = 1,
+    @Query("limit") limit = 10
+  ) {
+    return this.paymentsService.adminFindAll({
+      status,
+      search,
+      page,
+      limit,
+    });
+  }
 }

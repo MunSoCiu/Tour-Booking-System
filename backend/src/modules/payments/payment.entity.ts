@@ -10,7 +10,7 @@ import { User } from "@/modules/users/user.entity";
 import { Order } from "@/modules/orders/order.entity";
 
 @Entity("payments")
-export class Payment {
+export class Payments {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 

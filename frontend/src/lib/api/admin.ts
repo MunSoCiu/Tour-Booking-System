@@ -76,3 +76,21 @@ export async function fetchAdminOrderStats() {
   if (!res.ok) throw new Error("fetchAdminOrderStats failed");
   return res.json();
 }
+
+/* ================= PAYMENTS ================= */
+export async function fetchAdminPayments(params: {
+  status?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+}) {
+  const qs = new URLSearchParams(params as any).toString();
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/payments/admin?${qs}`,
+    { credentials: "include" }
+  );
+
+  if (!res.ok) throw new Error("Fetch admin payments failed");
+  return res.json();
+}

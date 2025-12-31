@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import OrderStatusBadge from "./OrderStatusBadge";
 import OrderItemActions from "./OrderItemActions";
 import { formatPrice } from "@/lib/utils/formatPrice";
+import { retryOrderPayment } from "@/lib/api/orders";
 
 export default function OrdersList({
   status,
@@ -37,17 +38,8 @@ export default function OrdersList({
     });
   }
 
-  function handlePay(orderId: string) {
-    router.push(`/payment?orderId=${orderId}`);
-  }
-
   async function retryPayment(orderId: string) {
-    await fetch(`/orders/${orderId}/status`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ status: "pending" }),
-    });
+    await retryOrderPayment(orderId);
 
     setData((prev: any) => ({
       ...prev,
@@ -55,6 +47,10 @@ export default function OrdersList({
         o.id === orderId ? { ...o, status: "pending" } : o
       ),
     }));
+  }
+
+  function handlePay(orderId: string) {
+    router.push(`/payment?orderId=${orderId}`);
   }
 
   function handleDelete(orderId: string) {

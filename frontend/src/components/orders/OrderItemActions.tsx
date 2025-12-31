@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 export default function OrderItemActions({
   status,
   onCancel,
@@ -13,9 +15,9 @@ export default function OrderItemActions({
   onDelete: () => void;
   onRetryPay: () => Promise<void>;
 }) {
-  /* =====================
-     PENDING
-  ===================== */
+  const [loading, setLoading] = useState(false);
+
+  /* ===================== PENDING ===================== */
   if (status === "pending") {
     return (
       <div className="flex flex-col items-end gap-2">
@@ -36,22 +38,19 @@ export default function OrderItemActions({
     );
   }
 
-  /* =====================
-     CANCELLED
-  ===================== */
+  /* ===================== CANCELLED ===================== */
   if (status === "cancelled") {
     const handleRetry = async () => {
       const ok = confirm(
         "Bạn có muốn thanh toán lại đơn hàng này không?\n\nĐơn sẽ được chuyển về trạng thái CHỜ THANH TOÁN."
       );
-
       if (!ok) return;
 
       try {
-        await onRetryPay();
-        onPay(); // chuyển sang trang thanh toán
-      } catch (err) {
-        alert("Không thể thanh toán lại đơn hàng");
+        setLoading(true);
+        await onRetryPay(); // chỉ gọi callback
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -59,9 +58,10 @@ export default function OrderItemActions({
       <div className="flex flex-col items-end gap-2">
         <button
           onClick={handleRetry}
-          className="bg-orange-500 text-white px-4 py-2 rounded-lg"
+          disabled={loading}
+          className="bg-orange-500 text-white px-4 py-2 rounded-lg disabled:opacity-50"
         >
-          Thanh toán lại
+          {loading ? "Đang xử lý..." : "Thanh toán lại"}
         </button>
 
         <button
@@ -74,9 +74,7 @@ export default function OrderItemActions({
     );
   }
 
-  /* =====================
-     SUCCESS
-  ===================== */
+  /* ===================== SUCCESS ===================== */
   if (status === "success") {
     return (
       <button className="bg-gray-100 px-4 py-2 rounded-lg cursor-default">

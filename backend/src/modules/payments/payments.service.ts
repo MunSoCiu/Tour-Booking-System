@@ -88,4 +88,80 @@ export class PaymentsService {
       limit,
     };
   }
+
+  async adminFindAll(q: {
+    status?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) {
+    const page = Number(q.page) || 1;
+    const limit = Number(q.limit) || 10;
+
+    const qb = this.paymentRepo
+      .createQueryBuilder("payment")
+      .leftJoinAndSelect("payment.user", "user")
+      .leftJoinAndSelect("payment.order", "order");
+
+    if (q.status && q.status !== "all") {
+      qb.andWhere("payment.status = :status", { status: q.status });
+    }
+
+    if (q.search) {
+      qb.andWhere(
+        `
+      payment.orderId LIKE :search
+      OR user.fullName LIKE :search
+      OR payment.method LIKE :search
+      `,
+        { search: `%${q.search}%` }
+      );
+    }
+
+    const [items, total] = await qb
+      .orderBy("payment.createdAt", "DESC")
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    return { items, total, page, limit };
+  }
+
+  async findAdminPayments(q: {
+    status?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) {
+    const page = Number(q.page) || 1;
+    const limit = Number(q.limit) || 10;
+
+    const qb = this.paymentRepo
+      .createQueryBuilder("payment")
+      .leftJoinAndSelect("payment.user", "user")
+      .leftJoinAndSelect("payment.order", "order");
+
+    if (q.status && q.status !== "all") {
+      qb.andWhere("payment.status = :status", { status: q.status });
+    }
+
+    if (q.search) {
+      qb.andWhere(
+        `
+      LOWER(payment.id) LIKE :search
+      OR LOWER(user.fullName) LIKE :search
+      OR LOWER(JSON_UNQUOTE(JSON_EXTRACT(order.items, '$[0].tourTitle'))) LIKE :search
+      `,
+        { search: `%${q.search.toLowerCase()}%` }
+      );
+    }
+
+    const [items, total] = await qb
+      .orderBy("payment.createdAt", "DESC")
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    return { items, total, page, limit };
+  }
 }

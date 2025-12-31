@@ -5,13 +5,15 @@ import { Repository } from "typeorm";
 import { Order } from "./order.entity";
 import { Tour } from "../tours/tour.entity";
 import { CartItem } from "../cart/cart.entity";
+import { Payment } from "../payments/payment.entity";
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Order) private orderRepo: Repository<Order>,
     @InjectRepository(Tour) private tourRepo: Repository<Tour>,
-    @InjectRepository(CartItem) private cartRepo: Repository<CartItem>
+    @InjectRepository(CartItem) private cartRepo: Repository<CartItem>,
+    @InjectRepository(Payment) private paymentRepo: Repository<Payment>
   ) {}
 
   /* ==========================
@@ -177,5 +179,34 @@ export class OrdersService {
       page,
       limit,
     };
+  }
+
+  async retryPayment(orderId: string, userId: string) {
+    const order = await this.orderRepo.findOne({
+      where: { id: orderId, userId },
+    });
+
+    if (!order) {
+      throw new NotFoundException("Order not found");
+    }
+
+    if (order.status !== "cancelled") {
+      throw new BadRequestException("Chỉ được thanh toán lại đơn đã hủy");
+    }
+
+    order.status = "pending";
+    await this.orderRepo.save(order);
+
+    await this.paymentRepo.update(
+      {
+        orderId: order.id,
+        status: "pending",
+      },
+      {
+        status: "cancelled",
+      }
+    );
+
+    return { success: true };
   }
 }

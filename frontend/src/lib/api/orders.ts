@@ -9,6 +9,11 @@ export async function fetchMyOrders(params?: {
   return res.data;
 }
 
+export async function retryOrderPayment(orderId: string) {
+  const res = await api.post(`/orders/${orderId}/retry-payment`);
+  return res.data;
+}
+
 export async function cancelOrder(orderId: string) {
   await api.put(`/orders/${orderId}/cancel`);
 }

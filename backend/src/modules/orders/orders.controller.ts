@@ -66,4 +66,13 @@ export class OrdersController {
   delete(@Req() req: RequestWithUser, @Param("id") id: string) {
     return this.svc.delete(id, req.user.sub);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(":id/retry-payment")
+  async retryPayment(
+    @Param("id") orderId: string,
+    @Req() req: RequestWithUser
+  ) {
+    return this.svc.retryPayment(orderId, req.user.sub);
+  }
 }
