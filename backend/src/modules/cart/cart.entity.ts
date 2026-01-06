@@ -3,8 +3,10 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  ManyToOne,
 } from "typeorm";
 
+// cart/cart.entity.ts
 @Entity("cart_items")
 export class CartItem {
   @PrimaryGeneratedColumn("uuid")
@@ -18,6 +20,9 @@ export class CartItem {
 
   @Column("int")
   qty: number;
+
+  @Column({ default: false }) // ✅ CHECKBOX
+  selected: boolean;
 
   @CreateDateColumn()
   createdAt: Date;

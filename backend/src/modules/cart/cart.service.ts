@@ -1,17 +1,26 @@
-<<<<<<< HEAD
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CartItem } from "./cart.entity";
 import { Tour } from "../tours/tour.entity";
+import { Order } from "../orders/order.entity";
 
 @Injectable()
 export class CartService {
+  [x: string]: any;
   constructor(
     @InjectRepository(CartItem) private cartRepo: Repository<CartItem>,
-    @InjectRepository(Tour) private tourRepo: Repository<Tour>
+    @InjectRepository(Tour) private tourRepo: Repository<Tour>,
+    @InjectRepository(Order) private orderRepo: Repository<Order> // ✅ FIX
   ) {}
 
+  /* =========================
+        ADD TO CART
+  ========================= */
   async add(payload: { userId: string; tourId: string; qty: number }) {
     const tour = await this.tourRepo.findOne({
       where: { id: payload.tourId },
@@ -36,6 +45,9 @@ export class CartService {
     );
   }
 
+  /* =========================
+        GET CART
+  ========================= */
   async findByUser(userId: string) {
     const items = await this.cartRepo.find({
       where: { userId },
@@ -48,7 +60,6 @@ export class CartService {
       const tour = await this.tourRepo.findOne({
         where: { id: item.tourId },
       });
-
       if (!tour) continue;
 
       result.push({
@@ -67,15 +78,18 @@ export class CartService {
     return result;
   }
 
+  /* =========================
+        UPDATE QTY
+  ========================= */
   async updateQty(id: string, qty: number, userId: string) {
     const item = await this.cartRepo.findOne({ where: { id, userId } });
     if (!item) throw new NotFoundException("Cart item not found");
 
     if (qty < 1) {
-      throw new NotFoundException("Số lượng phải >= 1");
+      throw new BadRequestException("Số lượng phải >= 1");
     }
-    item.qty = qty;
 
+    item.qty = qty;
     return this.cartRepo.save(item);
   }
 
@@ -88,35 +102,13 @@ export class CartService {
 
   async clearByUser(userId: string) {
     await this.cartRepo.delete({ userId });
-=======
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { CartItem } from "./cart.entity";
-
-@Injectable()
-export class CartService {
-  constructor(@InjectRepository(CartItem) private repo: Repository<CartItem>) {}
-
-  add(item: Partial<CartItem>) {
-    const c = this.repo.create(item);
-    return this.repo.save(c);
   }
 
-  findByUser(userId: string) {
-    return this.repo.findBy({ userId });
-  }
+  async toggleSelect(id: string, selected: boolean, userId: string) {
+    const item = await this.cartRepo.findOne({ where: { id, userId } });
+    if (!item) throw new NotFoundException("Cart item not found");
 
-  updateQty(id: string, qty: number) {
-    return this.repo.update(id, { qty });
-  }
-
-  remove(id: string) {
-    return this.repo.delete(id);
-  }
-
-  clear(userId: string) {
-    return this.repo.delete({ userId });
->>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
+    item.selected = selected;
+    return this.cartRepo.save(item);
   }
 }

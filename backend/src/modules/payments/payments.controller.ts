@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import {
   Controller,
   Post,
@@ -145,23 +144,5 @@ export class PaymentsController {
       page,
       limit,
     });
-=======
-import { Controller, Post, Body, Get, Param } from "@nestjs/common";
-import { PaymentsService } from "./payments.service";
-
-@Controller("payments")
-export class PaymentsController {
-  constructor(private svc: PaymentsService) {}
-
-  @Post("create")
-  create(@Body() body: any) {
-    // mock create payment record
-    return this.svc.create(body);
-  }
-
-  @Get("user/:userId")
-  history(@Param("userId") userId: string) {
-    return this.svc.findByUser(userId);
->>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
   }
 }

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { DollarSign } from "lucide-react";
 
 export default function Sidebar() {
   const pathname = usePathname();

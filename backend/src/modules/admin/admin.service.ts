@@ -55,11 +55,11 @@ export class AdminService {
   }
 
   async getOrderStats() {
-    const total = await this.orderRepo.count();
-    const success = await this.orderRepo.count({
+    const totalOrders = await this.orderRepo.count();
+    const successOrders = await this.orderRepo.count({
       where: { status: "success" },
     });
-    const pending = await this.orderRepo.count({
+    const pendingOrders = await this.orderRepo.count({
       where: { status: "pending" },
     });
 
@@ -69,18 +69,11 @@ export class AdminService {
       .where("o.status = :s", { s: "success" })
       .getRawOne();
 
-    const latest = await this.orderRepo.find({
-      order: { createdAt: "DESC" },
-      take: 5,
-      relations: ["user"],
-    });
-
     return {
-      total,
-      success,
-      pending,
+      totalOrders,
+      successOrders,
+      pendingOrders,
       totalRevenue: Number(revenue?.sum || 0),
-      latest,
     };
   }
 

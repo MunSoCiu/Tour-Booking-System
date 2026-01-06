@@ -1,6 +1,5 @@
 "use client";
 
-<<<<<<< HEAD
 import { useState } from "react";
 import ProfileSidebar, {
   ProfileTab,
@@ -26,26 +25,6 @@ export default function ProfilePage() {
           {tab === "password" && <ChangePasswordForm />}
           {tab === "orders" && <TripHistory />}
           {tab === "payment" && <PaymentMethods />}
-=======
-import ProfileSidebar from "@/components/profile/ProfileSidebar";
-import ProfileDetails from "@/components/profile/ProfileDetails";
-import TripHistory from "@/components/profile/TripHistory";
-
-export default function ProfilePage() {
-  return (
-    <div className="bg-gray-50 min-h-screen p-6">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* LEFT SIDEBAR */}
-        <ProfileSidebar />
-
-        {/* RIGHT CONTENT */}
-        <div className="lg:col-span-3 space-y-8">
-          {/* PERSONAL INFO */}
-          <ProfileDetails />
-
-          {/* TRIP HISTORY */}
-          <TripHistory />
->>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
         </div>
       </div>
     </div>

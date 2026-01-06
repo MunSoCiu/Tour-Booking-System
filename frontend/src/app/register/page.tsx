@@ -12,12 +12,9 @@ export default function RegisterPage() {
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [registerLoading, setRegisterLoading] = useState(false);
-<<<<<<< HEAD
   const [regPhone, setRegPhone] = useState("");
   const [regAddress, setRegAddress] = useState("");
   const [regBirthDate, setRegBirthDate] = useState("");
-=======
->>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
 
   const handleRegister = async () => {
     if (!regName || !regEmail || !regPassword)
@@ -29,18 +26,12 @@ export default function RegisterPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-<<<<<<< HEAD
         fullName: regName,
         email: regEmail,
         password: regPassword,
         phone: regPhone || undefined,
         address: regAddress || undefined,
         birthDate: regBirthDate || undefined,
-=======
-        name: regName,
-        email: regEmail,
-        password: regPassword,
->>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
       }),
     });
 
@@ -49,12 +40,8 @@ export default function RegisterPage() {
 
     if (!res.ok) return alert(data.message || "Đăng ký thất bại.");
 
-<<<<<<< HEAD
     localStorage.setItem("token", data.access_token);
     localStorage.setItem("user", JSON.stringify(data.user));
-=======
-    localStorage.setItem("token", data.token);
->>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
 
     alert("Đăng ký thành công!");
     window.location.href = "/";
@@ -94,7 +81,6 @@ export default function RegisterPage() {
           </div>
 
           <div>
-<<<<<<< HEAD
             <label className="text-sm">Số điện thoại</label>
             <input
               type="tel"
@@ -127,8 +113,6 @@ export default function RegisterPage() {
           </div>
 
           <div>
-=======
->>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
             <label className="text-sm">Mật khẩu</label>
             <input
               type="password"

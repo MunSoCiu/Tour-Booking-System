@@ -1,4 +1,3 @@
-
 import {
   Controller,
   Post,
@@ -14,7 +13,6 @@ import {
 import { OrdersService } from "./orders.service";
 import { JwtAuthGuard } from "../auth/jwt.guard";
 import { RequestWithUser } from "@/common/types/request-with-user";
-import { CreateOrderDto } from "./dto/create-order.dto";
 import { UpdateOrderStatusDto } from "./dto/update-order-status.dto";
 
 @Controller("orders")
@@ -22,9 +20,9 @@ export class OrdersController {
   constructor(private svc: OrdersService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Post()
-  create(@Req() req: RequestWithUser, @Body() dto: CreateOrderDto) {
-    return this.svc.create(req.user.sub, dto.items);
+  @Post("from-cart")
+  createFromCart(@Req() req: RequestWithUser) {
+    return this.svc.createFromCart(req.user.sub);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -58,8 +56,8 @@ export class OrdersController {
 
   @UseGuards(JwtAuthGuard)
   @Put(":id/cancel")
-  cancel(@Param("id") id: string) {
-    return this.svc.cancel(id);
+  cancel(@Req() req: RequestWithUser, @Param("id") id: string) {
+    return this.svc.cancel(id, req.user.sub);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -75,5 +73,14 @@ export class OrdersController {
     @Req() req: RequestWithUser
   ) {
     return this.svc.retryPayment(orderId, req.user.sub);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("direct")
+  createDirectOrder(
+    @Req() req: RequestWithUser,
+    @Body() body: { tourId: string; qty: number; date?: string }
+  ) {
+    return this.svc.createDirect(req.user.sub, body);
   }
 }

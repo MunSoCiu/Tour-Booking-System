@@ -23,6 +23,9 @@ const USERS = [
     fullName: "Ad1",
     images: "/avatars/1.jpg",
     role: "admin",
+    phone: "0912345678",
+    address: " TP.HCM",
+    birthDate: "2000-10-20",
   },
   {
     email: "admin2@gotour.test",
@@ -30,6 +33,9 @@ const USERS = [
     fullName: "Ad2",
     images: "/avatars/2.jpg",
     role: "admin",
+    phone: "0979704951",
+    address: " Hà Nội",
+    birthDate: "2004-06-29",
   },
   {
     email: "admin3@gotour.test",
@@ -37,36 +43,59 @@ const USERS = [
     fullName: "Ad3",
     images: "/avatars/3.jpg",
     role: "admin",
+    phone: "0912345678",
+    address: "Quận 1, TP.HCM",
+    birthDate: "1999-05-20",
   },
   {
     email: "user1@gotour.test",
     password: "password123",
     fullName: "Nguyễn Văn A",
+    images: "/avatars/3.jpg",
     role: "user",
+    phone: "0912345678",
+    address: "Quận 1, TP.HCM",
+    birthDate: "1999-05-20",
   },
   {
     email: "user2@gotour.test",
     password: "password123",
+    images: "/avatars/3.jpg",
     fullName: "Trần Thị B",
     role: "user",
+    phone: "0912345678",
+    address: "Quận 1, TP.HCM",
+    birthDate: "1999-05-20",
   },
   {
     email: "user3@gotour.test",
     password: "password123",
     fullName: "Phạm Hoàng C",
+    images: "/avatars/2.jpg",
     role: "user",
+    phone: "0912345678",
+    address: "Quận 1, TP.HCM",
+    birthDate: "1999-05-20",
   },
   {
     email: "user4@gotour.test",
     password: "password123",
     fullName: "Lê Minh D",
+    images: "/avatars/3.jpg",
     role: "user",
+    phone: "0912345678",
+    address: "Quận 1, TP.HCM",
+    birthDate: "1999-05-20",
   },
   {
     email: "user5@gotour.test",
     password: "password123",
     fullName: "Võ Thu E",
+    images: "/avatars/4.jpg",
     role: "user",
+    phone: "0912345678",
+    address: "Quận 1, TP.HCM",
+    birthDate: "1999-05-20",
   },
 ];
 
@@ -369,7 +398,7 @@ const TOURS = [
     duration: "3N2Đ",
     price: 2900000,
     description: "Dạo phố cổ, học nấu ăn truyền thống và tham quan làng gốm.",
-    image: "/images/tours/12.jpg",
+    image: "/images/tours/31.jpg",
     itinerary: [
       {
         day: "Ngày 1",
@@ -1096,6 +1125,9 @@ async function run() {
           email: u.email,
           password: await bcrypt.hash(u.password, 10),
           fullName: u.fullName,
+          phone: u.phone ?? null,
+          address: u.address ?? null,
+          birthDate: u.birthDate ? new Date(u.birthDate) : null,
           avatar: u.images || null,
           role: u.role as "admin" | "user",
           status: "active",
@@ -1191,12 +1223,23 @@ async function run() {
   const orders = await Promise.all(
     [...Array(20)].map((_, i) => {
       const tour = savedTours[i % savedTours.length];
+
       return orderRepo.save(
         orderRepo.create({
           code: `ORD-${2000 + i}`,
           userId: users[i % users.length].id,
-          items: [{ tourId: tour.id, qty: 1, price: tour.price }],
-          total: tour.price,
+          items: [
+            {
+              tourId: tour.id,
+              tourTitle: tour.title,
+              tourImage: tour.image,
+              qty: 1,
+              price: tour.price,
+              discount: tour.discount || 0,
+              finalPrice: tour.discountPrice || tour.price,
+            },
+          ],
+          total: tour.discountPrice || tour.price,
           status: i % 3 === 0 ? "success" : "pending",
         })
       );
@@ -1207,19 +1250,32 @@ async function run() {
 
   /* PAYMENTS */
   const payRepo = ds.getRepository(Payments);
-
+  const BANK_METHODS = ["bank:VCB", "bank:TCB", "bank:BIDV"];
   await Promise.all(
-    orders.map((o, i) =>
-      payRepo.save(
+    orders.map((o, i) => {
+      let method: string;
+      if (i % 3 === 0) {
+        method = "momo";
+      } else if (i % 3 === 1) {
+        method = "vnpay";
+      } else {
+        method = BANK_METHODS[i % BANK_METHODS.length];
+      }
+      return payRepo.save(
         payRepo.create({
-          orderId: o.id,
-          userId: o.userId,
+          orderId: String(o.id),
+          userId: String(o.userId),
           amount: o.total,
-          method: i % 2 === 0 ? "card" : "bank",
-          status: o.status,
+          method,
+          status:
+            o.status === "success"
+              ? "success"
+              : o.status === "pending"
+              ? "pending"
+              : "failed",
         })
-      )
-    )
+      );
+    })
   );
 
   console.log("💳 Payments created");

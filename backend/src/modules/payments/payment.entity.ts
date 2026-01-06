@@ -3,21 +3,14 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-<<<<<<< HEAD
   ManyToOne,
   JoinColumn,
 } from "typeorm";
-import { User } from "@/modules/users/user.entity";
-import { Order } from "@/modules/orders/order.entity";
+import { User } from "../users/user.entity";
+import { Order } from "../orders/order.entity";
 
 @Entity("payments")
 export class Payments {
-=======
-} from "typeorm";
-
-@Entity("payments")
-export class Payment {
->>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
@@ -27,7 +20,6 @@ export class Payment {
   @Column()
   userId: string;
 
-<<<<<<< HEAD
   @ManyToOne(() => User)
   @JoinColumn({ name: "userId" })
   user: User;
@@ -36,20 +28,14 @@ export class Payment {
   @JoinColumn({ name: "orderId" })
   order: Order;
 
-=======
->>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
   @Column("int")
   amount: number;
 
   @Column()
-<<<<<<< HEAD
-  method: string; // momo | vnpay | bank
-=======
-  method: string;
->>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
+  method: string; // momo | vnpay | bank:VCB | bank:TCB | bank:BIDV
 
   @Column({ default: "pending" })
-  status: string;
+  status: "pending" | "success" | "failed";
 
   @CreateDateColumn()
   createdAt: Date;

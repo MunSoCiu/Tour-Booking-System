@@ -28,6 +28,12 @@ export class User {
   @Column({ nullable: true })
   avatar: string;
 
+  @Column({ nullable: true })
+  address: string;
+
+  @Column({ type: "date", nullable: true })
+  birthDate: Date;
+
   @Column({
     type: "varchar",
     default: "user",

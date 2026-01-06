@@ -6,9 +6,12 @@ import {
   Body,
   UseGuards,
   ForbiddenException,
+  Req,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { JwtAuthGuard } from "../auth/jwt.guard";
+import { User } from "./user.entity";
+import { RequestWithUser } from "@/common/types/request-with-user";
 
 @Controller("users")
 export class UsersController {
@@ -44,21 +47,34 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Put(":id")
   async update(
+    @Req() req: RequestWithUser,
     @Param("id") id: string,
-    @Body() body: Partial<any>,
-    @Body("userId") userId: string,
-    @Body("role") role: string
+    @Body() body: Partial<User>
   ) {
-    // ❌ User cannot self-promote to admin
+    const { sub: userId, role } = req.user;
+
     if (body.role && role !== "admin") {
-      throw new ForbiddenException("Không thể thay đổi quyền của bạn");
+      throw new ForbiddenException("Không thể thay đổi quyền");
     }
 
-    // ❌ User cannot update another user's profile
     if (userId !== id && role !== "admin") {
-      throw new ForbiddenException("Bạn không có quyền cập nhật người khác");
+      throw new ForbiddenException("Không có quyền cập nhật");
     }
 
     return this.svc.update(id, body);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put(":id/password")
+  async changePassword(
+    @Req() req: RequestWithUser,
+    @Param("id") id: string,
+    @Body() body: { oldPassword: string; newPassword: string }
+  ) {
+    if (req.user.sub !== id) {
+      throw new ForbiddenException("Không có quyền");
+    }
+
+    return this.svc.changePassword(id, body.oldPassword, body.newPassword);
   }
 }

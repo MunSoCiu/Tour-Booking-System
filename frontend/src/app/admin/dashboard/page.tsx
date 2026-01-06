@@ -39,18 +39,13 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-<<<<<<< HEAD
       <div className="flex items-center justify-center h-[60vh]">
-=======
-      <div className="flex items-center justify-center h-screen">
->>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
         Đang tải dữ liệu Dashboard...
       </div>
     );
   }
 
   return (
-<<<<<<< HEAD
     <>
       <h1 className="text-2xl font-semibold">Bảng điều khiển tổng quan</h1>
       <p className="text-gray-600 mt-1">
@@ -69,29 +64,5 @@ export default function DashboardPage() {
         <TopToursCard tours={topTours} />
       </div>
     </>
-=======
-    <div className="flex bg-gray-50 min-h-screen">
-      <div className="flex-1">
-        <div className="p-6">
-          <h1 className="text-2xl font-semibold">Bảng điều khiển tổng quan</h1>
-          <p className="text-gray-600 mt-1">
-            Chào mừng trở lại, cùng xem thống kê hôm nay nhé!
-          </p>
-
-          <div className="mt-6">
-            <StatCard stats={stats} />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-            <div className="lg:col-span-2">
-              <LineChartCard chartData={chart} />
-            </div>
-
-            <TopToursCard tours={topTours} />
-          </div>
-        </div>
-      </div>
-    </div>
->>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
   );
 }

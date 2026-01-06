@@ -1,12 +1,10 @@
 import api from "@/lib/api/client";
 
-export async function fetchMyOrders(params?: {
-  status?: string;
-  search?: string;
-  page?: number;
-}) {
+export async function fetchMyOrders(params: any) {
   const res = await api.get("/orders/my", { params });
-  return res.data;
+  return {
+    items: res.data,
+  };
 }
 
 export async function retryOrderPayment(orderId: string) {

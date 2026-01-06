@@ -1,7 +1,7 @@
 export async function authFetch(url: string, options: RequestInit = {}) {
   const token = localStorage.getItem("token");
 
-  return fetch(url, {
+  return fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",

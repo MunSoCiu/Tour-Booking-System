@@ -1,30 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-<<<<<<< HEAD
 import OrderStatusDropdown from "@/components/admin/orders/OrderStatusDropdown";
 import OrderDetailModal from "@/components/admin/orders/OrderDetailModal";
-=======
-import StatCard from "@/components/admin/StatCard";
->>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
 import { fetchAdminOrders, fetchAdminOrderStats } from "@/lib/api/admin";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
-<<<<<<< HEAD
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
-=======
->>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
 
   useEffect(() => {
-    Promise.all([fetchAdminOrders(), fetchAdminOrderStats()]).then(([o, s]) => {
-      setOrders(Array.isArray(o?.items) ? o.items : []);
-      setStats(s);
-    });
+    Promise.all([fetchAdminOrders(), fetchAdminOrderStats()]).then(
+      ([orders, stats]) => {
+        setOrders(Array.isArray(orders) ? orders : []);
+        setStats(stats);
+      }
+    );
   }, []);
 
-<<<<<<< HEAD
   function updateOrderStatus(orderId: string, newStatus: string) {
     setOrders((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
@@ -121,44 +115,6 @@ export default function OrdersPage() {
           onClose={() => setSelectedOrder(null)}
         />
       )}
-=======
-  if (!stats) return <div>Đang tải...</div>;
-
-  return (
-    <div className="flex bg-gray-50 min-h-screen">
-      <div className="flex-1">
-        <div className="p-6">
-          <h1 className="text-2xl font-semibold">Quản lý đơn hàng</h1>
-
-          {/* STAT */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6"></div>
-
-          {/* TABLE */}
-          <div className="bg-white mt-8 p-4 rounded-xl shadow">
-            <table className="w-full">
-              <thead>
-                <tr className="text-gray-500 border-b">
-                  <th className="p-3">Mã</th>
-                  <th className="p-3">Khách</th>
-                  <th className="p-3">Tổng</th>
-                  <th className="p-3">Trạng thái</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((o) => (
-                  <tr key={o.id} className="border-b">
-                    <td className="p-3">{o.code}</td>
-                    <td className="p-3">{o.user?.fullName}</td>
-                    <td className="p-3">{o.total.toLocaleString()} đ</td>
-                    <td className="p-3 capitalize">{o.status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
->>>>>>> ab840f992aa0769c334dbf2673efcbc376cf9dc0
     </div>
   );
 }

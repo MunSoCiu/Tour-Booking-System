@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "./user.entity";
@@ -34,6 +38,9 @@ export class UsersService {
         "id",
         "email",
         "fullName",
+        "phone",
+        "address",
+        "birthDate",
         "avatar",
         "role",
         "status",
@@ -100,5 +107,19 @@ export class UsersService {
     const saved = await this.repo.save(user);
 
     return this.sanitize(saved);
+  }
+
+  async changePassword(id: string, oldPassword: string, newPassword: string) {
+    const user = await this.findEntityById(id);
+
+    const ok = await bcrypt.compare(oldPassword, user.password);
+    if (!ok) {
+      throw new BadRequestException("Mật khẩu cũ không đúng");
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await this.repo.save(user);
+
+    return { message: "Password updated" };
   }
 }

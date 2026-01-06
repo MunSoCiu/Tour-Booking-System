@@ -23,7 +23,6 @@ export class Order {
   @Column()
   userId: string;
 
-  // danh sách sản phẩm mua
   @Column("json")
   items: {
     tourId: string;
@@ -33,6 +32,7 @@ export class Order {
     price: number;
     discount: number;
     finalPrice: number;
+    date?: string;
   }[];
 
   @Column("int")

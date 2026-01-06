@@ -1,45 +1,41 @@
-import { formatPrice } from "@/lib/utils/formatPrice";
-import Link from "next/link";
-
 export default function CartSummary({
   items,
   serviceFee,
+  onPay,
 }: {
   items: { name: string; price: number }[];
   serviceFee: number;
+  onPay: () => void;
 }) {
   const total = items.reduce((sum, item) => sum + item.price, 0) + serviceFee;
 
   return (
-    <div className="bg-white shadow-sm border rounded-xl p-6 h-max">
+    <div className="bg-white border rounded-xl p-6">
       <h2 className="text-xl font-semibold mb-4">Tóm tắt đơn hàng</h2>
 
-      <div className="space-y-2 text-gray-700 text-sm">
-        {items.map((item, index) => (
-          <div key={index} className="flex justify-between">
-            <span>{item.name}</span>
-            <span>{formatPrice(item.price)}</span>
-          </div>
-        ))}
-
-        <div className="flex justify-between">
-          <span>Phí dịch vụ</span>
-          <span>{formatPrice(serviceFee)}</span>
+      {items.map((i, idx) => (
+        <div key={idx} className="flex justify-between text-sm">
+          <span>{i.name}</span>
+          <span>{i.price.toLocaleString()} ₫</span>
         </div>
+      ))}
+
+      <div className="flex justify-between mt-2">
+        <span>Phí dịch vụ</span>
+        <span>{serviceFee.toLocaleString()} ₫</span>
       </div>
 
-      <div className="mt-4 pt-4 border-t flex justify-between text-lg font-bold">
+      <div className="flex justify-between mt-4 font-bold">
         <span>Tổng cộng</span>
-        <span className="text-blue-600">{formatPrice(total)}</span>
+        <span className="text-blue-600">{total.toLocaleString()} ₫</span>
       </div>
 
-      <button className="mt-6 w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">
-        Tiến hành thanh toán
+      <button
+        onClick={onPay}
+        className="mt-6 w-full bg-blue-600 text-white py-3 rounded-lg"
+      >
+        Thanh toán
       </button>
-
-      <p className="text-xs text-gray-500 text-center mt-2">
-        Bạn sẽ được chuyển đến trang thanh toán an toàn.
-      </p>
     </div>
   );
 }
