@@ -1,6 +1,6 @@
 import { IsIn } from "class-validator";
 
 export class UpdateOrderStatusDto {
-  @IsIn(["pending", "success", "cancelled"])
-  status: "pending" | "success" | "cancelled";
+  @IsIn(["pending", "confirmed", "cancelled"])
+  status: "pending" | "confirmed" | "cancelled";
 }

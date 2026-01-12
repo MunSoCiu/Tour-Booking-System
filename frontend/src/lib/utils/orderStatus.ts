@@ -1,11 +1,11 @@
-export const STATUS_MAP: Record<string, string> = {
+export const STATUS_MAP = {
   pending: "Chờ thanh toán",
-  success: "Đã hoàn thành",
+  confirmed: "Đã hoàn thành",
   cancelled: "Đã hủy",
 };
 
-export const STATUS_STYLE: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-600",
-  success: "bg-green-100 text-green-600",
-  cancelled: "bg-red-100 text-red-600",
+export const STATUS_STYLE = {
+  pending: "bg-yellow-100 text-yellow-700",
+  confirmed: "bg-green-100 text-green-700",
+  cancelled: "bg-red-100 text-red-700",
 };

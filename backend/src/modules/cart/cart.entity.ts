@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   ManyToOne,
 } from "typeorm";
+import { Tour } from "../tours/tour.entity";
 
 // cart/cart.entity.ts
 @Entity("cart_items")
@@ -18,10 +19,16 @@ export class CartItem {
   @Column()
   tourId: string;
 
+  @ManyToOne(() => Tour, { eager: false })
+  tour: Tour;
+
   @Column("int")
   qty: number;
 
-  @Column({ default: false }) // ✅ CHECKBOX
+  @Column({ type: "date", nullable: true })
+  date: string | null;
+
+  @Column({ default: false })
   selected: boolean;
 
   @CreateDateColumn()

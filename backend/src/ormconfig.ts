@@ -8,6 +8,7 @@ import { CartItem } from "./modules/cart/cart.entity";
 import { Order } from "./modules/orders/order.entity";
 import { Testimonial } from "./modules/testimonials/testimonial.entity";
 import { Payments } from "./modules/payments/payment.entity";
+import { PaymentAccount } from "./modules/payments/payment-account.entity";
 
 const config: DataSourceOptions = {
   type: "mysql",
@@ -16,7 +17,15 @@ const config: DataSourceOptions = {
   username: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_DATABASE,
-  entities: [User, Tour, CartItem, Order, Testimonial, Payments],
+  entities: [
+    User,
+    Tour,
+    CartItem,
+    Order,
+    Testimonial,
+    Payments,
+    PaymentAccount,
+  ],
   synchronize: true,
   logging: false,
 };

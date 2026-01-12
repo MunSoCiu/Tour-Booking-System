@@ -3,7 +3,6 @@ import {
   Post,
   Body,
   Get,
-  Param,
   Query,
   UseGuards,
   Req,
@@ -19,10 +18,55 @@ import { JwtAuthGuard } from "../auth/jwt.guard";
 @Controller("payments")
 export class PaymentsController {
   constructor(
-    private paymentsService: PaymentsService,
-    private momoService: MomoService,
-    private vnpayService: VnpayService
+    private readonly paymentsService: PaymentsService,
+    private readonly momoService: MomoService,
+    private readonly vnpayService: VnpayService
   ) {}
+
+  /* ================= PAYMENT METHODS ================= */
+
+  @Get("methods")
+  getPaymentMethods() {
+    return [
+      {
+        key: "momo",
+        name: "MoMo",
+        desc: "Ví điện tử MoMo",
+        logo: "/uploads/icons/Momo.jpg",
+        enabled: true,
+      },
+      {
+        key: "vnpay",
+        name: "VNPay",
+        desc: "Thanh toán qua VNPay",
+        logo: "/uploads/icons/Vnpay.png",
+        enabled: true,
+      },
+      {
+        key: "bank:vcb",
+        name: "Vietcombank",
+        desc: "Ngân hàng Vietcombank",
+        logo: "/uploads/icons/vcb.jpg",
+        enabled: true,
+      },
+      {
+        key: "bank:bidv",
+        name: "BIDV",
+        desc: "Ngân hàng BIDV",
+        logo: "/uploads/icons/bidv.jpg",
+        enabled: true,
+      },
+      {
+        key: "bank:tcb",
+        name: "Techcombank",
+        desc: "Ngân hàng Techcombank",
+        logo: "/uploads/icons/tcb.jpg",
+        enabled: true,
+      },
+    ];
+  }
+
+  /* ================= USER ================= */
 
   @UseGuards(JwtAuthGuard)
   @Get("my")
@@ -41,31 +85,23 @@ export class PaymentsController {
     });
   }
 
-  @Get("methods")
-  getPaymentMethods() {
-    return [
-      {
-        key: "momo",
-        name: "MoMo",
-        desc: "Ví điện tử MoMo",
-        logo: "/images/payments/momo.png",
-        enabled: true,
-      },
-      {
-        key: "vnpay",
-        name: "VNPay",
-        desc: "Thanh toán qua VNPay",
-        logo: "/images/payments/vnpay.png",
-        enabled: true,
-      },
-      {
-        key: "card",
-        name: "Thẻ ngân hàng",
-        desc: "Visa / MasterCard / ATM",
-        logo: "/images/payments/card.png",
-        enabled: true,
-      },
-    ];
+  @UseGuards(JwtAuthGuard)
+  @Get("accounts")
+  getMyAccounts(@Req() req: RequestWithUser) {
+    return this.paymentsService.getMyAccounts(req.user.sub);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("pay")
+  payOrder(
+    @Req() req: RequestWithUser,
+    @Body() body: { orderId: string; method: string }
+  ) {
+    return this.paymentsService.payOrder(
+      req.user.sub,
+      body.orderId,
+      body.method
+    );
   }
 
   /* ================= MOMO ================= */
@@ -111,8 +147,9 @@ export class PaymentsController {
       status: "pending",
     });
 
-    const url = this.vnpayService.createPaymentUrl(dto);
-    return { url };
+    return {
+      url: this.vnpayService.createPaymentUrl(dto),
+    };
   }
 
   @Get("vnpay/return")
@@ -123,12 +160,7 @@ export class PaymentsController {
     return { success: true };
   }
 
-  /* ================= HISTORY ================= */
-
-  @Get("user/:userId")
-  history(@Param("userId") userId: string) {
-    return this.paymentsService.findByUser(userId);
-  }
+  /* ================= ADMIN ================= */
 
   @UseGuards(JwtAuthGuard)
   @Get("admin")
@@ -144,5 +176,24 @@ export class PaymentsController {
       page,
       limit,
     });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get("admin/revenue")
+  adminRevenue() {
+    return this.paymentsService.adminRevenue();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("mock-pay")
+  payMock(
+    @Req() req: RequestWithUser,
+    @Body() body: { orderId: string; provider: string }
+  ) {
+    return this.paymentsService.payByMockAccount(
+      req.user.sub,
+      body.orderId,
+      body.provider
+    );
   }
 }

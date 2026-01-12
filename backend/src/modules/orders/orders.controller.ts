@@ -17,13 +17,41 @@ import { UpdateOrderStatusDto } from "./dto/update-order-status.dto";
 
 @Controller("orders")
 export class OrdersController {
-  constructor(private svc: OrdersService) {}
+  constructor(private readonly svc: OrdersService) {}
+
+  /* ================= PUBLIC ================= */
+
+  @Get("bookings/success")
+  getBookingSuccess(@Query("code") code: string) {
+    return this.svc.getBookingSuccess(code);
+  }
+
+  @Post("bookings/check")
+  checkBooking(@Body() dto: { email: string; code: string }) {
+    return this.svc.checkBooking(dto);
+  }
+
+  /* ================= CREATE ================= */
 
   @UseGuards(JwtAuthGuard)
   @Post("from-cart")
-  createFromCart(@Req() req: RequestWithUser) {
-    return this.svc.createFromCart(req.user.sub);
+  createFromCart(
+    @Req() req: RequestWithUser,
+    @Body("cartItemIds") cartItemIds: string[]
+  ) {
+    return this.svc.createFromCart(req.user.sub, cartItemIds);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("direct")
+  createDirectOrder(
+    @Req() req: RequestWithUser,
+    @Body() body: { tourId: string; qty: number; date?: string }
+  ) {
+    return this.svc.createDirect(req.user.sub, body);
+  }
+
+  /* ================= USER ORDERS ================= */
 
   @UseGuards(JwtAuthGuard)
   @Get("my")
@@ -42,11 +70,7 @@ export class OrdersController {
     });
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get(":id")
-  getOne(@Req() req: RequestWithUser, @Param("id") id: string) {
-    return this.svc.findOne(id, req.user.sub);
-  }
+  /* ================= STATUS ================= */
 
   @UseGuards(JwtAuthGuard)
   @Put(":id/status")
@@ -66,21 +90,17 @@ export class OrdersController {
     return this.svc.delete(id, req.user.sub);
   }
 
+  /* ================= PAYMENT ================= */
+
   @UseGuards(JwtAuthGuard)
   @Post(":id/retry-payment")
-  async retryPayment(
-    @Param("id") orderId: string,
-    @Req() req: RequestWithUser
-  ) {
+  retryPayment(@Param("id") orderId: string, @Req() req: RequestWithUser) {
     return this.svc.retryPayment(orderId, req.user.sub);
   }
 
+  @Get("code/:code")
   @UseGuards(JwtAuthGuard)
-  @Post("direct")
-  createDirectOrder(
-    @Req() req: RequestWithUser,
-    @Body() body: { tourId: string; qty: number; date?: string }
-  ) {
-    return this.svc.createDirect(req.user.sub, body);
+  getByCode(@Req() req: RequestWithUser, @Param("code") code: string) {
+    return this.svc.findByCode(code, req.user.sub);
   }
 }

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { formatPrice } from "@/lib/utils/formatPrice";
+import { resolveImage } from "@/lib/utils/resolveImage";
 
 interface DealProps {
   title: string;
@@ -22,15 +23,17 @@ export default function DealCard({
   slug,
   discount,
 }: DealProps) {
+  const isLocal = process.env.NODE_ENV === "development";
   return (
     <div className="rounded-2xl shadow-lg bg-white hover:shadow-xl transition p-6 flex flex-col h-full">
       {/* IMAGE */}
       <div className="relative h-72 w-full">
         <Image
-          src={image || "/images/default.jpg"}
+          src={resolveImage(image) || "/images/default.jpg"}
           fill
           alt={title}
           className="object-cover rounded-2xl"
+          unoptimized={isLocal}
         />
 
         <span className="absolute top-4 left-4 bg-red-600 text-white text-sm px-3 py-1 rounded-lg font-semibold">

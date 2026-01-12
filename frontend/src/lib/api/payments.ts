@@ -16,7 +16,7 @@ export async function createMomoPayment(payload: {
   orderInfo: string;
 }) {
   const res = await api.post("/payments/momo", payload);
-  return res.data; // { payUrl }
+  return res.data;
 }
 
 export async function createVnpayPayment(payload: {
@@ -25,5 +25,18 @@ export async function createVnpayPayment(payload: {
   ipAddr: string;
 }) {
   const res = await api.post("/payments/vnpay", payload);
-  return res.data; // { url }
+  return res.data;
+}
+
+export function renderPaymentMethod(method?: string) {
+  if (!method) return "—";
+
+  const map: Record<string, string> = {
+    momo: "MoMo",
+    vnpay: "VNPay",
+    bank: "Chuyển khoản",
+    cash: "Tiền mặt",
+  };
+
+  return map[method] ?? method;
 }

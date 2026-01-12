@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import OrderStatusDropdown from "@/components/admin/orders/OrderStatusDropdown";
 import OrderDetailModal from "@/components/admin/orders/OrderDetailModal";
 import { fetchAdminOrders, fetchAdminOrderStats } from "@/lib/api/admin";
 
@@ -19,14 +18,19 @@ export default function OrdersPage() {
     );
   }, []);
 
-  function updateOrderStatus(orderId: string, newStatus: string) {
-    setOrders((prev) =>
-      prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
-    );
+  function renderPaymentMethod(method?: string) {
+    if (!method) return "—";
+    const map: Record<string, string> = {
+      momo: "MoMo",
+      vnpay: "VNPay",
+      bank: "Chuyển khoản",
+    };
+    return map[method] ?? method;
+  }
 
-    if (selectedOrder?.id === orderId) {
-      setSelectedOrder({ ...selectedOrder, status: newStatus });
-    }
+  function shortTx(id?: string) {
+    if (!id) return "—";
+    return id.slice(0, 8) + "...";
   }
 
   if (!stats) return <div>Đang tải...</div>;
@@ -35,69 +39,102 @@ export default function OrdersPage() {
     <div className="bg-gray-50 min-h-screen p-6">
       <h1 className="text-2xl font-semibold mb-6">Quản lý đơn hàng</h1>
 
-      <div className="bg-white rounded-xl shadow p-4">
-        <table className="w-full text-base">
-          <thead>
-            <tr className="border-b text-gray-500">
-              <th className="p-4 text-left font-semibold text-gray-600">Mã</th>
-              <th className="p-4 text-left font-semibold text-gray-600">
-                Khách
-              </th>
-              <th className="p-4 text-left font-semibold text-gray-600">
-                Tour
-              </th>
-              <th className="p-4 text-center font-semibold text-gray-600">
-                Số Lượng Người
-              </th>
-              <th className="p-4 text-right font-semibold text-gray-600">
-                Giá
-              </th>
-              <th className="p-4 text-right font-semibold text-gray-600">
-                Tổng
-              </th>
-              <th className="p-4 text-center font-semibold text-gray-600">
-                Trạng thái
-              </th>
-              <th className="p-4 text-center font-semibold text-gray-600">
-                Thao tác
-              </th>
+      <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50 sticky top-0 z-10">
+            <tr className="text-gray-600">
+              <th className="px-4 py-3 text-left">Mã GD</th>
+              <th className="px-4 py-3 text-left">Mã đơn</th>
+              <th className="px-4 py-3 text-left">Khách</th>
+              <th className="px-4 py-3 text-left">Tour</th>
+              <th className="px-4 py-3 text-center">Ngày TT</th>
+              <th className="px-4 py-3 text-center">SL</th>
+              <th className="px-4 py-3 text-right">Tổng</th>
+              <th className="px-4 py-3 text-center">PTTT</th>
+              <th className="px-4 py-3 text-center">Trạng thái</th>
+              <th className="px-4 py-3 text-center">Thao tác</th>
             </tr>
           </thead>
 
-          <tbody>
-            {orders.map((o) => {
-              const item = o.items[0];
+          <tbody className="divide-y">
+            {orders.map((o, idx) => {
+              const item = o.items?.[0];
 
               return (
-                <tr key={o.id} className="border-b hover:bg-gray-50">
-                  <td className="p-3 font-medium">{o.code}</td>
-                  <td className="p-4 text-gray-800">{o.user?.fullName}</td>
-                  <td className="p-3 truncate max-w-[220px]">
-                    {item.tourTitle}
-                  </td>
-                  <td className="p-3 text-center">{item.qty}</td>
-                  <td className="p-3 text-right">
-                    {item.price.toLocaleString()} đ
-                    {item.discount > 0 && (
-                      <span className="ml-2 text-sm text-green-600 font-semibold">
-                        -{item.discount}%
-                      </span>
-                    )}
+                <tr
+                  key={o.id}
+                  className={`hover:bg-gray-50 transition ${
+                    idx % 2 === 0 ? "bg-white" : "bg-gray-50/40"
+                  }`}
+                >
+                  {/* MÃ GIAO DỊCH */}
+                  <td className="px-4 py-3 font-mono text-xs text-gray-500">
+                    <span title={o.paymentId}>
+                      {o.paymentId ? o.paymentId.slice(0, 8) + "…" : "—"}
+                    </span>
                   </td>
 
-                  <td className="p-3 text-right font-semibold">
-                    {(item.finalPrice * item.qty).toLocaleString()} đ
+                  {/* MÃ ĐƠN */}
+                  <td className="px-4 py-3 font-semibold text-gray-900">
+                    {o.code}
                   </td>
-                  <td className="p-3 text-center">
-                    <OrderStatusDropdown
-                      order={o}
-                      onUpdated={updateOrderStatus}
-                    />
+
+                  {/* KHÁCH */}
+                  <td className="px-4 py-3">
+                    <p className="font-medium">{o.customer}</p>
+                    <p className="text-xs text-gray-500">{o.email}</p>
                   </td>
-                  <td className="p-3 text-center">
+
+                  {/* TOUR */}
+                  <td className="px-4 py-3 max-w-[260px]">
+                    <p className="truncate font-medium">
+                      {item?.tourTitle ?? "—"}
+                    </p>
+                  </td>
+
+                  {/* NGÀY THANH TOÁN */}
+                  <td className="px-4 py-3 text-center text-gray-600">
+                    {o.paymentDate
+                      ? new Date(o.paymentDate).toLocaleDateString("vi-VN")
+                      : "—"}
+                  </td>
+
+                  {/* SỐ LƯỢNG */}
+                  <td className="px-4 py-3 text-center">{item?.qty ?? "—"}</td>
+
+                  {/* TỔNG */}
+                  <td className="px-4 py-3 text-right font-semibold text-blue-600">
+                    {o.total.toLocaleString()} đ
+                  </td>
+
+                  {/* PHƯƠNG THỨC */}
+                  <td className="px-4 py-3 text-center">
+                    <span className="px-3 py-1 rounded-full text-xs bg-blue-100 text-blue-700">
+                      {o.paymentMethod ?? "—"}
+                    </span>
+                  </td>
+
+                  {/* TRẠNG THÁI */}
+                  <td className="px-4 py-3 text-center">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold
+                ${
+                  o.paymentStatus === "success"
+                    ? "bg-green-100 text-green-700"
+                    : o.paymentStatus === "pending"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : "bg-red-100 text-red-700"
+                }`}
+                    >
+                      {o.paymentStatus}
+                    </span>
+                  </td>
+
+                  {/* ACTION */}
+                  <td className="px-4 py-3 text-center">
                     <button
                       onClick={() => setSelectedOrder(o)}
-                      className="text-blue-600 font-semibold hover:underline text-base"
+                      className="px-3 py-1.5 rounded-lg border text-sm text-blue-600 hover:bg-blue-50"
                     >
                       Xem
                     </button>

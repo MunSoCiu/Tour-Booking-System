@@ -5,7 +5,17 @@ const nextConfig = {
   reactStrictMode: true,
 
   images: {
-    domains: ["images.unsplash.com", "localhost"],
+    domains: ["localhost"],
+    remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "3001",
+        pathname: "/uploads/**",
+      },
+    ],
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "attachment",
   },
 
   env: {
@@ -13,7 +23,6 @@ const nextConfig = {
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
   },
 
-  // ⭐ Thêm Webpack alias để dùng @/**
   webpack: (config) => {
     config.resolve.alias["@"] = path.resolve(__dirname, "src");
     return config;

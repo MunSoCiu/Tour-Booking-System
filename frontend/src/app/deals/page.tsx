@@ -9,6 +9,7 @@ export default function DealsPage() {
   const API = process.env.NEXT_PUBLIC_API_URL ?? "";
   const [tours, setTours] = useState([]);
   const [filter, setFilter] = useState("all");
+  const isLocal = process.env.NODE_ENV === "development";
 
   /* ============================
         MAP FILTER → BACKEND
@@ -77,6 +78,7 @@ export default function DealsPage() {
           alt="Deals Hero"
           fill
           className="object-cover brightness-75"
+          unoptimized={isLocal}
         />
 
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">

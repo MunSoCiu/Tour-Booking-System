@@ -39,7 +39,7 @@ export class Order {
   total: number;
 
   @Column({ default: "pending" })
-  status: "pending" | "success" | "cancelled";
+  status: "pending" | "confirmed" | "cancelled";
 
   @CreateDateColumn()
   createdAt: Date;

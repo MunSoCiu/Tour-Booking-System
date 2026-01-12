@@ -1,13 +1,12 @@
 import PaymentStatusBadge from "./PaymentStatusBadge";
 
-const METHOD_LABEL: Record<string, string> = {
-  momo: "MoMo",
-  vnpay: "VNPay",
-  bank: "Chuyển khoản",
-  "bank:VCB": "Chuyển khoản VCB",
-  "bank:TCB": "Chuyển khoản Techcombank",
-  "bank:BIDV": "Chuyển khoản BIDV",
-};
+const methods = [
+  { key: "momo", label: "Ví MoMo" },
+  { key: "vnpay", label: "Ví VNPay" },
+  { key: "bank:vcb", label: "Vietcombank" },
+  { key: "bank:bidv", label: "BIDV" },
+  { key: "bank:tcb", label: "Techcombank" },
+];
 
 export default function PaymentTable({ items }: { items: any[] }) {
   return (

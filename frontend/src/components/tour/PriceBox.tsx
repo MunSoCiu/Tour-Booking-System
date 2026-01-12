@@ -12,14 +12,12 @@ export default function PriceBox({
   setDate,
   guests,
   setGuests,
-  apiUrl,
 }: {
   tour: any;
   date: string;
   setDate: (d: string) => void;
   guests: number;
   setGuests: (n: number) => void;
-  apiUrl: string;
 }) {
   const { user } = useAuth();
   const router = useRouter();
@@ -27,15 +25,15 @@ export default function PriceBox({
 
   const isLoggedIn = !!user;
 
+  const pricePerGuest = tour.discountPrice ?? tour.price;
+
   const serviceFee = 500_000;
-  const total = tour.price * guests + serviceFee;
+  const total = pricePerGuest * guests + serviceFee;
 
   /* =========================
       LOGIN REQUIRED
   ========================= */
-  const requireLogin = () => {
-    setShowLoginPopup(true);
-  };
+  const requireLogin = () => setShowLoginPopup(true);
 
   const goToLogin = () => {
     const redirect = window.location.pathname;
@@ -49,40 +47,8 @@ export default function PriceBox({
     if (!isLoggedIn) return requireLogin();
 
     try {
-      const res = await authFetch(`${apiUrl}/cart`, {
+      const res = await authFetch(`/cart`, {
         method: "POST",
-        body: JSON.stringify({
-          tourId: tour.id,
-          qty: guests,
-        }),
-      });
-
-      if (!res.ok) throw new Error();
-      router.push("/cart");
-      alert("Thêm giỏ hàng thành công!");
-    } catch {
-      alert("Lỗi thêm giỏ hàng");
-    }
-  };
-
-  /* =========================
-      CHECKOUT
-  ========================= */
-  /* =========================
-    DIRECT ORDER (ĐẶT TOUR NGAY)
-========================= */
-  const checkout = async () => {
-    if (!isLoggedIn) return requireLogin();
-
-    if (!date) {
-      alert("Vui lòng chọn ngày khởi hành");
-      return;
-    }
-
-    try {
-      const res = await authFetch(`${apiUrl}/orders/direct`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           tourId: tour.id,
           qty: guests,
@@ -92,13 +58,40 @@ export default function PriceBox({
 
       if (!res.ok) {
         const msg = await res.text();
-        throw new Error(msg);
+        alert(msg || "Thêm giỏ hàng thất bại");
+        return;
       }
 
-      // ✅ ĐẶT TOUR THÀNH CÔNG → MY ORDERS
+      alert("✅ Thêm vào giỏ hàng thành công");
+      router.push("/cart");
+    } catch (err) {
+      alert("❌ Lỗi kết nối server");
+    }
+  };
+
+  /* =========================
+      DIRECT ORDER (ĐẶT TOUR NGAY)
+  ========================= */
+  const checkout = async () => {
+    if (!isLoggedIn) return requireLogin();
+    if (!date) return alert("Vui lòng chọn ngày khởi hành");
+
+    try {
+      const res = await authFetch(`/orders/direct`, {
+        method: "POST",
+        body: JSON.stringify({
+          tourId: tour.id,
+          qty: guests,
+          date,
+        }),
+      });
+
+      const order = await res.json();
+
+      alert(`🎉 Đặt tour thành công!\nMã đơn: ${order.code}`);
       router.push("/my-orders");
-    } catch (e) {
-      alert("Đặt tour thất bại, vui lòng thử lại");
+    } catch (err: any) {
+      alert(err.message || "Đặt tour thất bại");
     }
   };
 
@@ -107,7 +100,7 @@ export default function PriceBox({
       {/* PRICE */}
       <div className="text-sm text-gray-500">Giá từ</div>
       <div className="text-4xl font-bold text-blue-600">
-        {formatPrice(tour.price)}đ
+        {formatPrice(pricePerGuest)}đ
       </div>
       <div className="text-xs text-gray-500">/khách</div>
 
@@ -141,7 +134,7 @@ export default function PriceBox({
         <div className="border-t pt-4 text-gray-700">
           <div className="flex justify-between">
             <span>Giá tour</span>
-            <span>{formatPrice(tour.price * guests)}đ</span>
+            <span>{formatPrice(pricePerGuest * guests)}đ</span>
           </div>
           <div className="flex justify-between">
             <span>Phí dịch vụ</span>

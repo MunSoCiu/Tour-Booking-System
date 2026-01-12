@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { resolveImage } from "@/lib/utils/resolveImage";
 
 export default function PhotoGallery({
   images = [],
@@ -11,6 +12,7 @@ export default function PhotoGallery({
   title?: string;
 }) {
   const [mainIndex, setMainIndex] = useState(0);
+  const isLocal = process.env.NODE_ENV === "development";
 
   if (!images || images.length === 0) {
     return (
@@ -20,7 +22,7 @@ export default function PhotoGallery({
     );
   }
 
-  const main = images[mainIndex];
+  const main = resolveImage(images[mainIndex]);
 
   return (
     <div>
@@ -42,6 +44,7 @@ export default function PhotoGallery({
               alt={`thumb-${idx}`}
               fill
               className="object-cover"
+              unoptimized={isLocal}
             />
           </button>
         ))}

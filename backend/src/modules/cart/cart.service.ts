@@ -65,6 +65,7 @@ export class CartService {
       result.push({
         id: item.id,
         qty: item.qty,
+        selected: item.selected,
         tour: {
           id: tour.id,
           title: tour.title,

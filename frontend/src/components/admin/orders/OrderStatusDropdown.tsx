@@ -4,7 +4,13 @@ import api from "@/lib/api/client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const STATUS = ["pending", "success", "cancelled"];
+const STATUS = ["pending", "confirmed", "cancelled"];
+
+const STATUS_STYLE: Record<string, string> = {
+  pending: "bg-yellow-50 text-yellow-700",
+  confirmed: "bg-green-50 text-green-800",
+  cancelled: "bg-red-50 text-red-600",
+};
 
 export default function OrderStatusDropdown({
   order,
@@ -38,15 +44,9 @@ export default function OrderStatusDropdown({
       value={order.status}
       disabled={loading}
       onChange={(e) => changeStatus(e.target.value)}
-      className={`border rounded-lg px-3 py-2 text-sm font-semibold
-  ${
-    order.status === "success"
-      ? "bg-green-50 text-green-800"
-      : order.status === "cancelled"
-      ? "bg-red-50 text-red-600"
-      : "bg-yellow-50 text-yellow-700"
-  }
-`}
+      className={`border rounded-lg px-3 py-2 text-sm font-semibold ${
+        STATUS_STYLE[order.status] || "bg-gray-50 text-gray-700"
+      }`}
     >
       {STATUS.map((s) => (
         <option key={s} value={s}>

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { resolveImage } from "@/lib/utils/resolveImage";
 
 export default function PromotionCard({
   tag,
@@ -24,11 +25,18 @@ export default function PromotionCard({
   action?: string;
   slug: string;
 }) {
+  const isLocal = process.env.NODE_ENV === "development";
   return (
     <div className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
       {/* IMAGE + TAG */}
       <div className="relative h-52">
-        <Image src={image} alt={title} fill className="object-cover" />
+        <Image
+          src={resolveImage(image) || "/images/default-promo.jpg"}
+          alt={title}
+          fill
+          className="object-cover"
+          unoptimized={isLocal}
+        />
         <span
           className={`${tagColor} absolute top-3 left-3 px-3 py-1 text-white rounded-lg text-sm font-semibold`}
         >

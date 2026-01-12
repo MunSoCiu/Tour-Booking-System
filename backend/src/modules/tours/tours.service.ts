@@ -69,12 +69,19 @@ export class ToursService {
   /* =========================
         ADMIN CREATE TOUR
   ========================= */
-  async createAdminTour(data: any) {
+  async createAdminTour(data: {
+    title: string;
+    price: number;
+    image?: string;
+    description?: string;
+    location?: string;
+    duration?: string;
+  }) {
     const tour = this.repo.create({
       title: data.title,
-      slug: data.title.toLowerCase().replace(/\s+/g, "-"),
+      slug: data.title.toLowerCase().trim().replace(/\s+/g, "-"),
       price: data.price,
-      image: data.image,
+      image: data.image ?? null,
       description: data.description ?? "",
       location: data.location ?? "",
       duration: data.duration ?? "1N",

@@ -2,17 +2,17 @@
 
 import Image from "next/image";
 import { Trash2, Calendar, Users } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { formatPrice } from "@/lib/utils/formatPrice";
+import { resolveImage } from "@/lib/utils/resolveImage";
 
 export default function CartItem({
-  id,
   image,
   title,
   date,
   guests,
   price,
-  quantity: initialQty,
+  quantity,
   selected,
   onSelect,
   onQuantityChange,
@@ -27,14 +27,18 @@ export default function CartItem({
   quantity: number;
   selected: boolean;
   onSelect: (checked: boolean) => void;
-  onQuantityChange?: (qty: number) => void;
-  onRemove?: () => void;
+  onQuantityChange: (qty: number) => void;
+  onRemove: () => void;
 }) {
-  const [qty, setQty] = useState(initialQty);
+  const [qty, setQty] = useState(quantity);
+  const isLocal = process.env.NODE_ENV === "development";
+
+  useEffect(() => {
+    setQty(quantity);
+  }, [quantity]);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border p-4 flex gap-4">
-      {/* CHECKBOX */}
+    <div className="bg-white rounded-2xl border p-5 flex gap-6">
       <input
         type="checkbox"
         checked={selected}
@@ -42,52 +46,52 @@ export default function CartItem({
         className="mt-2"
       />
 
-      {/* Image */}
       <Image
-        src={image}
-        width={160}
-        height={110}
-        className="rounded-xl object-cover"
+        src={resolveImage(image) || "/images/default.jpg"}
+        width={120}
+        height={90}
         alt={title}
+        className="rounded-xl object-cover border"
+        unoptimized={isLocal}
       />
 
-      {/* Info */}
       <div className="flex-1">
         <h3 className="font-semibold text-lg">{title}</h3>
 
-        <div className="mt-2 text-sm text-gray-600 space-y-1">
+        <div className="mt-2 text-sm text-gray-500 space-y-1">
           <p className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" /> {date}
+            <Calendar className="w-4 h-4" />
+            {date}
           </p>
           <p className="flex items-center gap-2">
-            <Users className="w-4 h-4" /> {guests}
+            <Users className="w-4 h-4" />
+            {guests}
           </p>
         </div>
 
-        {/* Quantity */}
-        <div className="mt-3 flex items-center gap-3">
-          <span>Số lượng:</span>
+        <div className="mt-4 flex items-center gap-3">
+          <span className="text-sm">Số lượng:</span>
           <div className="flex border rounded-lg overflow-hidden">
             <button
+              className="px-3"
               onClick={() => {
                 if (qty > 1) {
                   const v = qty - 1;
                   setQty(v);
-                  onQuantityChange?.(v);
+                  onQuantityChange(v);
                 }
               }}
-              className="px-3"
             >
               -
             </button>
             <span className="px-4">{qty}</span>
             <button
+              className="px-3"
               onClick={() => {
                 const v = qty + 1;
                 setQty(v);
-                onQuantityChange?.(v);
+                onQuantityChange(v);
               }}
-              className="px-3"
             >
               +
             </button>
@@ -95,9 +99,8 @@ export default function CartItem({
         </div>
       </div>
 
-      {/* Price + Delete */}
-      <div className="flex flex-col justify-between items-end">
-        <p className="text-blue-600 font-semibold">
+      <div className="flex flex-col items-end justify-between">
+        <p className="text-blue-600 font-bold text-lg">
           {formatPrice(price * qty)}
         </p>
 

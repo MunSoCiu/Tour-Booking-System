@@ -4,13 +4,15 @@ import { Repository, In } from "typeorm";
 import { User } from "../users/user.entity";
 import { Tour } from "../tours/tour.entity";
 import { Order } from "../orders/order.entity";
+import { Payments } from "../payments/payment.entity";
 
 @Injectable()
 export class AdminService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(Tour) private tourRepo: Repository<Tour>,
-    @InjectRepository(Order) private orderRepo: Repository<Order>
+    @InjectRepository(Order) private orderRepo: Repository<Order>,
+    @InjectRepository(Payments) private paymentRepo: Repository<Payments>
   ) {}
 
   /* ========================================
@@ -24,7 +26,7 @@ export class AdminService {
     const revenue = await this.orderRepo
       .createQueryBuilder("o")
       .select("SUM(o.total)", "sum")
-      .where("o.status = :s", { s: "success" })
+      .where("o.status = :s", { s: "confirmed" })
       .getRawOne();
 
     return {
@@ -57,7 +59,7 @@ export class AdminService {
   async getOrderStats() {
     const totalOrders = await this.orderRepo.count();
     const successOrders = await this.orderRepo.count({
-      where: { status: "success" },
+      where: { status: "confirmed" },
     });
     const pendingOrders = await this.orderRepo.count({
       where: { status: "pending" },
@@ -66,7 +68,7 @@ export class AdminService {
     const revenue = await this.orderRepo
       .createQueryBuilder("o")
       .select("SUM(o.total)", "sum")
-      .where("o.status = :s", { s: "success" })
+      .where("o.status = :s", { s: "confirmed" })
       .getRawOne();
 
     return {
@@ -83,7 +85,7 @@ export class AdminService {
   async getTopTours() {
     // Lấy order success
     const orders = await this.orderRepo.find({
-      where: { status: "success" },
+      where: { status: "confirmed" },
     });
 
     if (orders.length === 0) return [];
@@ -105,8 +107,6 @@ export class AdminService {
     const tourIds = Array.from(soldMap.keys());
     if (tourIds.length === 0) return [];
 
-    // ⭐ FIX LỖI TYPEORM HERE ⭐
-    // `In(tourIds)` yêu cầu mảng string → OK vì id của bạn là uuid string
     const tours = await this.tourRepo.find({
       where: { id: In(tourIds) },
       select: { id: true, title: true },
@@ -133,7 +133,7 @@ export class AdminService {
         .createQueryBuilder("o")
         .select("SUM(o.total)", "sum")
         .where("MONTH(o.createdAt) = :m", { m: i })
-        .andWhere("o.status = :s", { s: "success" })
+        .andWhere("o.status = :s", { s: "confirmed" })
         .getRawOne();
 
       months.push(`Th ${i}`);

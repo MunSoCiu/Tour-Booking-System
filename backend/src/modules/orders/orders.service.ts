@@ -8,26 +8,35 @@ import { Repository } from "typeorm";
 import { Order } from "./order.entity";
 import { CartItem } from "../cart/cart.entity";
 import { Tour } from "../tours/tour.entity";
+import { Payments } from "../payments/payment.entity";
+import { NotificationsService } from "../notifications/notifications.service";
+import { In } from "typeorm";
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Order) private orderRepo: Repository<Order>,
     @InjectRepository(CartItem) private cartRepo: Repository<CartItem>,
-    @InjectRepository(Tour) private tourRepo: Repository<Tour>
+    @InjectRepository(Tour) private tourRepo: Repository<Tour>,
+    @InjectRepository(Payments) private paymentRepo: Repository<Payments>,
+    private notificationsService: NotificationsService
   ) {}
 
   /* ==========================
         USER CREATE ORDER
   ========================== */
 
-  async createFromCart(userId: string) {
+  async createFromCart(userId: string, cartItemIds: string[]) {
+    if (!cartItemIds?.length) {
+      throw new BadRequestException("Vui lòng chọn tour để thanh toán");
+    }
+
     const cartItems = await this.cartRepo.find({
-      where: { userId, selected: true },
+      where: { id: In(cartItemIds), userId },
     });
 
-    if (cartItems.length === 0) {
-      throw new BadRequestException("Vui lòng chọn tour để thanh toán");
+    if (!cartItems.length) {
+      throw new BadRequestException("Giỏ hàng trống");
     }
 
     const items = [];
@@ -37,7 +46,7 @@ export class OrdersService {
       const tour = await this.tourRepo.findOne({ where: { id: c.tourId } });
       if (!tour) continue;
 
-      const finalPrice = tour.discountPrice || tour.price;
+      const finalPrice = tour.discountPrice ?? tour.price;
 
       items.push({
         tourId: tour.id,
@@ -45,32 +54,32 @@ export class OrdersService {
         tourImage: tour.image,
         qty: c.qty,
         price: tour.price,
-        discount: tour.discount,
+        discount: tour.discount ?? 0,
         finalPrice,
+        date: c.date ?? null,
       });
 
       total += finalPrice * c.qty;
     }
 
-    if (items.length === 0 || total <= 0) {
-      throw new BadRequestException(
-        "Không thể tạo đơn hàng do tour không hợp lệ"
-      );
+    /** ✅ FIX QUAN TRỌNG */
+    if (items.length === 0) {
+      throw new BadRequestException("Không thể tạo đơn hàng");
     }
 
-    const order = this.orderRepo.create({
-      code: `ORD-${Date.now().toString().slice(-6)}`,
-      userId,
-      items,
-      total,
-      status: "pending",
-    });
+    const order = await this.orderRepo.save(
+      this.orderRepo.create({
+        code: `ORD-${Date.now().toString().slice(-6)}`,
+        userId,
+        items,
+        total,
+        status: "pending",
+      })
+    );
 
-    const saved = await this.orderRepo.save(order);
+    await this.cartRepo.delete(cartItemIds);
 
-    await this.cartRepo.delete(cartItems.map((i) => i.id));
-
-    return saved;
+    return order;
   }
 
   /* ==========================
@@ -93,9 +102,19 @@ export class OrdersService {
     }
 
     if (q?.search) {
-      qb.andWhere("LOWER(o.code) LIKE :search", {
-        search: `%${q.search.toLowerCase()}%`,
-      });
+      const keyword = `%${q.search.toLowerCase()}%`;
+
+      qb.andWhere(
+        `
+    LOWER(o.code) LIKE :kw
+    OR JSON_SEARCH(
+      LOWER(JSON_EXTRACT(o.items, '$[*].tourTitle')),
+      'one',
+      :kw
+    ) IS NOT NULL
+    `,
+        { kw: keyword }
+      );
     }
 
     qb.orderBy("o.createdAt", "DESC");
@@ -105,18 +124,22 @@ export class OrdersService {
 
   async findOne(id: string, userId: string) {
     const order = await this.orderRepo.findOne({
-      where: { id, userId },
+      where: { id },
       relations: ["user"],
     });
 
-    if (!order) throw new NotFoundException("Order not found");
+    if (!order || order.userId !== userId)
+      throw new NotFoundException("Order not found");
     return order;
   }
 
   /* ==========================
         UPDATE STATUS
   ========================== */
-  async updateStatus(id: string, status: "pending" | "success" | "cancelled") {
+  async updateStatus(
+    id: string,
+    status: "pending" | "confirmed" | "cancelled"
+  ) {
     const order = await this.orderRepo.findOne({ where: { id } });
     if (!order) throw new NotFoundException("Order not found");
 
@@ -150,11 +173,15 @@ export class OrdersService {
     if (!order) throw new NotFoundException("Order not found");
 
     if (order.status !== "cancelled") {
-      throw new BadRequestException("Order must be cancelled to retry payment");
+      throw new BadRequestException("Only cancelled order can retry payment");
     }
 
     order.status = "pending";
-    return this.orderRepo.save(order);
+    await this.orderRepo.save(order);
+
+    await this.paymentRepo.update({ orderId }, { status: "pending" });
+
+    return order;
   }
 
   async cancel(id: string, userId: string) {
@@ -175,10 +202,32 @@ export class OrdersService {
         ADMIN: GET ALL
   ========================== */
   async adminFindAll() {
-    return this.orderRepo.find({
-      relations: ["user"],
-      order: { createdAt: "DESC" },
-    });
+    const orders = await this.orderRepo
+      .createQueryBuilder("order")
+      .leftJoinAndSelect("order.user", "user")
+      .leftJoinAndMapOne(
+        "order.payment",
+        Payments,
+        "payment",
+        "payment.orderId = order.id"
+      )
+      .orderBy("order.createdAt", "DESC")
+      .getMany();
+
+    return orders.map((o) => ({
+      id: o.id,
+      code: o.code,
+      customer: o.user.fullName,
+      email: o.user.email,
+      total: o.total,
+      status: o.status,
+      createdAt: o.createdAt,
+      items: o.items ?? [],
+      paymentId: (o as any).payment?.id ?? null,
+      paymentMethod: (o as any).payment?.method ?? null,
+      paymentStatus: (o as any).payment?.status ?? "pending",
+      paymentDate: (o as any).payment?.createdAt ?? null,
+    }));
   }
 
   async createDirect(
@@ -210,8 +259,81 @@ export class OrdersService {
       ],
       total,
       status: "pending",
-    } as Partial<Order>);
+    });
 
-    return this.orderRepo.save(order);
+    const saved = await this.orderRepo.save(order);
+
+    await this.notificationsService.create({
+      userId,
+      title: "Đặt tour thành công",
+      message: `Đơn hàng ${saved.code} đã được tạo`,
+      type: "booking",
+      link: `/orders/${saved.id}`,
+    });
+
+    return saved;
+  }
+
+  /* ================= PUBLIC ================= */
+
+  async getBookingSuccess(code: string) {
+    const order = await this.orderRepo.findOne({
+      where: { code },
+      relations: ["user"],
+    });
+
+    if (!order) {
+      throw new NotFoundException("Booking not found");
+    }
+
+    const payment = await this.paymentRepo.findOne({
+      where: { orderId: order.id },
+      order: { createdAt: "DESC" },
+    });
+
+    return {
+      order,
+      payment,
+      status: {
+        orderStatus: order.status,
+        paymentStatus: payment?.status ?? "pending",
+      },
+    };
+  }
+
+  async checkBooking(payload: { email: string; code: string }) {
+    const order = await this.orderRepo.findOne({
+      where: { code: payload.code },
+      relations: ["user"],
+    });
+
+    if (!order || order.user.email !== payload.email) {
+      throw new NotFoundException("Booking not found");
+    }
+
+    const payment = await this.paymentRepo.findOne({
+      where: { orderId: order.id },
+      order: { createdAt: "DESC" },
+    });
+
+    return {
+      order,
+      payment,
+      status: {
+        orderStatus: order.status,
+        paymentStatus: payment?.status ?? "pending",
+      },
+    };
+  }
+
+  async findByCode(code: string, userId: string) {
+    const order = await this.orderRepo.findOne({
+      where: { code, userId },
+      relations: ["user"],
+    });
+    if (!order || order.userId !== userId) {
+      throw new NotFoundException("Order not found");
+    }
+    return order;
   }
 }

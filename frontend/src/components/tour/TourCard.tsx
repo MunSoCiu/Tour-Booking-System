@@ -4,17 +4,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Clock } from "lucide-react";
 import { formatPrice } from "@/lib/utils/formatPrice";
+import { resolveImage } from "@/lib/utils/resolveImage";
 
 export default function TourCard({ tour = {} }: any) {
+  const isLocal = process.env.NODE_ENV === "development";
   return (
     <div className="bg-white border rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300">
       {/* IMAGE */}
       <div className="relative h-44">
         <Image
-          src={tour.image || "/images/default-tour.jpg"}
+          src={resolveImage(tour.image) || "/images/default-tour.jpg"}
           alt={tour.title || "Tour du lịch"}
           fill
+          sizes="(max-width: 768px) 100vw, 33vw"
           className="object-cover"
+          unoptimized={isLocal}
         />
 
         {/* BADGE (nếu có) */}

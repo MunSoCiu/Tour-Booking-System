@@ -11,40 +11,47 @@ export default function CartPage() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const API = process.env.NEXT_PUBLIC_API_URL;
-
+  /* ================= FETCH CART ================= */
   useEffect(() => {
-    authFetch(`${API}/cart`)
+    authFetch("/cart")
       .then((res) => res.json())
-      .then(setItems)
+      .then((data) => {
+        setItems(
+          Array.isArray(data)
+            ? data.map((i) => ({ ...i, selected: true })) // mặc định chọn
+            : []
+        );
+      })
       .finally(() => setLoading(false));
   }, []);
 
-  const toggleSelect = async (id: string, selected: boolean) => {
-    await authFetch(`${API}/cart/${id}/select`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ selected }),
-    });
-
+  /* ================= SELECT (FE ONLY) ================= */
+  const toggleSelect = (id: string, selected: boolean) => {
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, selected } : i)));
   };
 
+  /* ================= REMOVE ================= */
   const removeItem = async (id: string) => {
-    await authFetch(`${API}/cart/${id}`, { method: "DELETE" });
+    const ok = confirm("❗ Bạn có chắc chắn muốn xoá tour này khỏi giỏ hàng?");
+    if (!ok) return;
+
+    await authFetch(`/cart/${id}`, { method: "DELETE" });
+
     setItems((prev) => prev.filter((i) => i.id !== id));
+    alert("🗑️ Đã xoá tour khỏi giỏ hàng");
   };
 
+  /* ================= UPDATE QTY ================= */
   const updateQty = async (id: string, qty: number) => {
-    await authFetch(`${API}/cart/${id}`, {
+    await authFetch(`/cart/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ quantity: qty }),
+      body: JSON.stringify({ qty }),
     });
 
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, qty } : i)));
   };
 
+  /* ================= PAY ================= */
   const selectedItems = items.filter((i) => i.selected);
 
   const handlePay = async () => {
@@ -53,41 +60,61 @@ export default function CartPage() {
       return;
     }
 
-    await authFetch(`${API}/orders/from-cart`, { method: "POST" });
-    router.push("/my-orders");
+    try {
+      await authFetch("/orders/from-cart", {
+        method: "POST",
+        body: JSON.stringify({
+          cartItemIds: selectedItems.map((i) => i.id),
+        }),
+      });
+
+      alert("🎉 Đặt tour thành công!");
+      router.push("/my-orders"); // ✅ CHUYỂN ĐÚNG TRANG
+    } catch (err: any) {
+      alert(err.message || "Thanh toán thất bại");
+    }
   };
 
   if (loading) return <div className="py-20 text-center">Đang tải…</div>;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div className="space-y-4 md:col-span-2">
-        {items.map((item) => (
-          <CartItem
-            key={item.id}
-            id={item.id}
-            image={item.tour.image}
-            title={item.tour.title}
-            date="Chưa chọn ngày"
-            guests={`${item.qty} khách`}
-            price={item.tour.price}
-            quantity={item.qty}
-            selected={item.selected}
-            onSelect={(v) => toggleSelect(item.id, v)}
-            onQuantityChange={(q) => updateQty(item.id, q)}
-            onRemove={() => removeItem(item.id)}
-          />
-        ))}
-      </div>
+    <div className="max-w-7xl mx-auto px-4 py-10">
+      <h1 className="text-3xl font-bold mb-2">Giỏ Hàng Của Bạn</h1>
+      <p className="text-gray-500 mb-8">
+        Bạn có {items.length} tour trong giỏ hàng.
+      </p>
 
-      <CartSummary
-        items={selectedItems.map((i) => ({
-          name: i.tour.title,
-          price: i.tour.price * i.qty,
-        }))}
-        serviceFee={15000}
-        onPay={handlePay}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* LEFT */}
+        <div className="lg:col-span-2 space-y-6">
+          {items.map((item) => (
+            <CartItem
+              key={item.id}
+              id={item.id}
+              image={item.tour.image}
+              title={item.tour.title}
+              date={item.date}
+              guests={`${item.qty} người`}
+              price={item.tour.price}
+              quantity={item.qty}
+              selected={item.selected}
+              onSelect={(v) => toggleSelect(item.id, v)}
+              onQuantityChange={(q) => updateQty(item.id, q)}
+              onRemove={() => removeItem(item.id)}
+            />
+          ))}
+        </div>
+
+        {/* RIGHT */}
+        <CartSummary
+          items={selectedItems.map((i) => ({
+            name: i.tour.title,
+            price: i.tour.price * i.qty,
+          }))}
+          serviceFee={0}
+          onPay={handlePay}
+        />
+      </div>
     </div>
   );
 }

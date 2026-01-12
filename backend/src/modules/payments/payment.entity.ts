@@ -28,7 +28,7 @@ export class Payments {
   @JoinColumn({ name: "orderId" })
   order: Order;
 
-  @Column("int")
+  @Column({ type: "decimal", precision: 15, scale: 0 })
   amount: number;
 
   @Column()
@@ -37,6 +37,12 @@ export class Payments {
   @Column({ default: "pending" })
   status: "pending" | "success" | "failed";
 
+  @Column({ nullable: true })
+  code: string;
+
   @CreateDateColumn()
   createdAt: Date;
+
+  @Column({ nullable: true })
+  paidAt: Date;
 }

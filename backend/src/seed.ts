@@ -12,6 +12,7 @@ import { CartItem } from "./modules/cart/cart.entity";
 import { Order } from "./modules/orders/order.entity";
 import { Payments } from "./modules/payments/payment.entity";
 import * as bcrypt from "bcrypt";
+import { PaymentAccount } from "./modules/payments/payment-account.entity";
 
 /* ======================================================
    1. USERS (3 admin + 5 users)
@@ -110,7 +111,7 @@ const TOURS = [
     duration: "4N3Đ",
     price: 4200000,
     description: "Khám phá cao nguyên đá Đồng Văn, đèo Mã Pì Lèng.",
-    image: "/images/tours/1.jpg",
+    image: "/uploads/tours/1.jpg",
     itinerary: [
       {
         day: "Ngày 1",
@@ -142,7 +143,7 @@ const TOURS = [
     duration: "3N2Đ",
     price: 3200000,
     description: "Ruộng bậc thang và bản làng dân tộc.",
-    image: "/images/tours/2.jpg",
+    image: "/uploads/tours/2.jpg",
     itinerary: [
       {
         day: "Ngày 1",
@@ -170,7 +171,7 @@ const TOURS = [
     price: 4800000,
     description:
       "Du thuyền 4 sao, thăm hang Sửng Sốt, chèo kayak tại động Thiên Cung.",
-    image: "/images/tours/3.jpg",
+    image: "/uploads/tours/3.jpg",
     itinerary: [
       {
         day: "Ngày 1",
@@ -197,7 +198,7 @@ const TOURS = [
     duration: "2N1Đ",
     price: 1800000,
     description: "Tham quan Tràng An, Bích Động và chùa Bái Đính trong ngày.",
-    image: "/images/tours/4.jpg",
+    image: "/uploads/tours/4.jpg",
     itinerary: [
       {
         day: "Ngày 1",
@@ -219,7 +220,7 @@ const TOURS = [
     duration: "3N2Đ",
     price: 2600000,
     description: "Thăm Đại Nội, lăng tẩm triều Nguyễn và đền đài cổ kính.",
-    image: "/images/tours/5.jpg",
+    image: "/uploads/tours/5.jpg",
     itinerary: [
       {
         day: "Ngày 1",
@@ -246,7 +247,7 @@ const TOURS = [
     duration: "4N3Đ",
     price: 3500000,
     description: "Thăm Bà Nà Hills, phố cổ Hội An về đêm và tắm biển Mỹ Khê.",
-    image: "/images/tours/6.jpg",
+    image: "/uploads/tours/6.jpg",
     itinerary: [
       {
         day: "Ngày 1",
@@ -278,7 +279,7 @@ const TOURS = [
     duration: "4N3Đ",
     price: 4400000,
     description: "Vinpearl, lặn biển Hòn Mun, thưởng thức hải sản tươi ngon.",
-    image: "/images/tours/7.jpg",
+    image: "/uploads/tours/7.jpg",
     itinerary: [
       {
         day: "Ngày 1",
@@ -307,7 +308,7 @@ const TOURS = [
     price: 3100000,
     description:
       "Thăm hồ Tuyền Lâm, vườn hoa, đồi chè và thưởng thức café trứ danh.",
-    image: "/images/tours/8.jpg",
+    image: "/uploads/tours/8.jpg",
     itinerary: [
       {
         day: "Ngày 1",
@@ -330,7 +331,7 @@ const TOURS = [
     duration: "3N2Đ",
     price: 5200000,
     description: "Resort 5 sao, safari, lặn ngắm san hô và chợ đêm Dinh Cậu.",
-    image: "/images/tours/9.jpg",
+    image: "/uploads/tours/9.jpg",
     itinerary: [
       { day: "Ngày 1", title: "Đến Phú Quốc", desc: "Nhận resort, tắm biển." },
       {
@@ -353,7 +354,7 @@ const TOURS = [
     duration: "3N2Đ",
     price: 3600000,
     description: "Eo Gió, Kỳ Co, trải nghiệm ẩm thực miền Trung đặc sắc.",
-    image: "/images/tours/10.jpg",
+    image: "/uploads/tours/10.jpg",
     itinerary: [
       { day: "Ngày 1", title: "Đến Quy Nhơn", desc: "Check-in, dạo biển." },
       {
@@ -376,7 +377,7 @@ const TOURS = [
     duration: "2N1Đ",
     price: 1700000,
     description: "Chợ nổi Cái Răng, miệt vườn và văn hoá sông nước.",
-    image: "/images/tours/11.jpg",
+    image: "/uploads/tours/11.jpg",
     itinerary: [
       {
         day: "Ngày 1",
@@ -398,7 +399,7 @@ const TOURS = [
     duration: "3N2Đ",
     price: 2900000,
     description: "Dạo phố cổ, học nấu ăn truyền thống và tham quan làng gốm.",
-    image: "/images/tours/31.jpg",
+    image: "/uploads/tours/31.jpg",
     itinerary: [
       {
         day: "Ngày 1",
@@ -421,7 +422,7 @@ const TOURS = [
     duration: "2N1Đ",
     price: 1500000,
     description: "Khám phá ẩm thực đường phố, Bến Thành và Bitexco.",
-    image: "/images/tours/13.jpg",
+    image: "/uploads/tours/13.jpg",
     itinerary: [
       {
         day: "Ngày 1",
@@ -443,7 +444,7 @@ const TOURS = [
     duration: "2N1Đ",
     price: 1400000,
     description: "Đồi chè, vườn dâu và mùa hoa cải rực rỡ.",
-    image: "/images/tours/14.jpg",
+    image: "/uploads/tours/14.jpg",
     itinerary: [
       {
         day: "Ngày 1",
@@ -465,7 +466,7 @@ const TOURS = [
     duration: "3N2Đ",
     price: 2800000,
     description: "Đồi cát bay, lướt ván, thưởng thức hải sản tươi sống.",
-    image: "/images/tours/15.jpg",
+    image: "/uploads/tours/15.jpg",
     itinerary: [
       { day: "Ngày 1", title: "Đến Mũi Né", desc: "Nhận phòng, tự do biển." },
       {
@@ -513,7 +514,7 @@ const TOURS = [
     duration: "5N4Đ",
     price: 7400000,
     description: "Đền Wat Arun, chợ Chatuchak và Pattaya sôi động.",
-    image: "/images/tours/17.jpg",
+    image: "/uploads/tours/17.jpg",
     itinerary: [
       { day: "Ngày 1", title: "Đến Bangkok", desc: "Check-in, dạo phố." },
       {
@@ -538,7 +539,7 @@ const TOURS = [
     duration: "5N4Đ",
     price: 13900000,
     description: "Khám phá Seoul hiện đại, DMZ và ẩm thực Hàn Quốc.",
-    image: "/images/tours/18.jpg",
+    image: "/uploads/tours/18.jpg",
     itinerary: [
       { day: "Ngày 1", title: "Đến Seoul", desc: "Check-in, dạo Myeongdong." },
       {
@@ -567,7 +568,7 @@ const TOURS = [
     duration: "5N4Đ",
     price: 15200000,
     description: "Tokyo sầm uất, đền chùa cổ kính và núi Phú Sĩ.",
-    image: "/images/tours/19.jpg",
+    image: "/uploads/tours/19.jpg",
     itinerary: [
       { day: "Ngày 1", title: "Đến Tokyo", desc: "Check-in, dạo Shibuya." },
       {
@@ -596,7 +597,7 @@ const TOURS = [
     duration: "4N3Đ",
     price: 8500000,
     description: "Resort biển, yoga, văn hoá Bali và lặn ngắm san hô.",
-    image: "/images/tours/20.jpg",
+    image: "/uploads/tours/20.jpg",
     itinerary: [
       { day: "Ngày 1", title: "Đến Bali", desc: "Check-in resort, thư giãn." },
       {
@@ -616,7 +617,7 @@ const TOURS = [
     duration: "5N4Đ",
     price: 22000000,
     description: "Burj Khalifa, sa mạc safari và shopping cao cấp.",
-    image: "/images/tours/21.jpg",
+    image: "/uploads/tours/21.jpg",
     itinerary: [
       { day: "Ngày 1", title: "Đến Dubai", desc: "Check-in, dạo Marina." },
       {
@@ -641,7 +642,7 @@ const TOURS = [
     duration: "7N6Đ",
     price: 42000000,
     description: "Tham quan Paris, Rome và Venice trong hành trình văn hoá.",
-    image: "/images/tours/22.jpg",
+    image: "/uploads/tours/22.jpg",
     itinerary: [
       {
         day: "Ngày 1",
@@ -684,7 +685,7 @@ const TOURS = [
     duration: "7N6Đ",
     price: 38000000,
     description: "London hiện đại và Edinburgh cổ kính, lâu đài và di sản.",
-    image: "/images/tours/23.jpg",
+    image: "/uploads/tours/23.jpg",
     itinerary: [
       { day: "Ngày 1", title: "London", desc: "Check-in, dạo Westminster." },
       {
@@ -723,7 +724,7 @@ const TOURS = [
     duration: "6N5Đ",
     price: 36000000,
     description: "Opera House, Harbour Bridge và Blue Mountains hùng vĩ.",
-    image: "/images/tours/24.jpg",
+    image: "/uploads/tours/24.jpg",
     itinerary: [
       {
         day: "Ngày 1",
@@ -757,7 +758,7 @@ const TOURS = [
     duration: "5N4Đ",
     price: 40000000,
     description: "Times Square, Central Park, tượng Nữ Thần Tự Do và Broadway.",
-    image: "/images/tours/25.jpg",
+    image: "/uploads/tours/25.jpg",
     itinerary: [
       {
         day: "Ngày 1",
@@ -790,7 +791,7 @@ const TOURS = [
     duration: "5N4Đ",
     price: 18000000,
     description: "Cầu Hagia Sophia, chợ Grand Bazaar và ẩm thực Ottoman.",
-    image: "/images/tours/26.jpg",
+    image: "/uploads/tours/26.jpg",
     itinerary: [
       {
         day: "Ngày 1",
@@ -823,7 +824,7 @@ const TOURS = [
     duration: "4N3Đ",
     price: 8200000,
     description: "Cố đô Luang Prabang yên bình, thác Kuang Si và văn hóa Lào.",
-    image: "/images/tours/27.jpg",
+    image: "/uploads/tours/27.jpg",
     itinerary: [
       {
         day: "Ngày 1",
@@ -851,7 +852,7 @@ const TOURS = [
     duration: "4N3Đ",
     price: 7600000,
     description: "Petronas, Batu Caves và khu giải trí Genting Highlands.",
-    image: "/images/tours/28.jpg",
+    image: "/uploads/tours/28.jpg",
     itinerary: [
       {
         day: "Ngày 1",
@@ -879,7 +880,7 @@ const TOURS = [
     duration: "6N5Đ",
     price: 30000000,
     description: "Kiến trúc Andalusia, Alhambra và ẩm thực tapas đặc sắc.",
-    image: "/images/tours/29.jpg",
+    image: "/uploads/tours/29.jpg",
     itinerary: [
       { day: "Ngày 1", title: "Đến Seville", desc: "Check-in, dạo phố cổ." },
       {
@@ -902,7 +903,7 @@ const TOURS = [
     price: 14500000,
     description:
       "Đền chùa lịch sử Kyoto, ẩm thực Osaka và trải nghiệm trà đạo.",
-    image: "/images/tours/30.jpg",
+    image: "/uploads/tours/30.jpg",
     itinerary: [
       { day: "Ngày 1", title: "Đến Kyoto", desc: "Thăm Kiyomizu-dera, Gion." },
       {
@@ -1106,6 +1107,7 @@ async function run() {
   /** Disable FK to allow truncating tables safely */
   await ds.query("SET FOREIGN_KEY_CHECKS = 0");
 
+  await ds.getRepository(PaymentAccount).clear();
   await ds.getRepository(Payments).clear();
   await ds.getRepository(Order).clear();
   await ds.getRepository(CartItem).clear();
@@ -1240,7 +1242,8 @@ async function run() {
             },
           ],
           total: tour.discountPrice || tour.price,
-          status: i % 3 === 0 ? "success" : "pending",
+          status: i % 3 === 0 ? "confirmed" : "pending",
+          createdAt: new Date(Date.now() - i * 86400 * 1000),
         })
       );
     })
@@ -1249,30 +1252,68 @@ async function run() {
   console.log("📦 Orders:", orders.length);
 
   /* PAYMENTS */
+  const paymentAccountRepo = ds.getRepository(PaymentAccount);
   const payRepo = ds.getRepository(Payments);
-  const BANK_METHODS = ["bank:VCB", "bank:TCB", "bank:BIDV"];
+
+  const WALLET_PROVIDERS = ["momo", "vnpay"];
+  const BANKS_PROVIDERS = ["bank:vcb", "bank:bidv", "bank:tcb"];
+  function randomItem<T>(arr: T[]): T {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function formatAccountNumber(raw: string) {
+    return raw.replace(/(\d{4})(\d{3})(\d{3})/, "$1.$2.$3");
+  }
+
+  function randomBalance(min: number, max: number) {
+    const value = Math.floor(Math.random() * (max - min + 1) + min) * 1_000_000;
+    return value; // NUMBER, không phải string
+  }
+
+  // seed.ts
+  for (const user of users) {
+    // ví điện tử
+    const walletRaw = "09" + Math.floor(10000000 + Math.random() * 90000000);
+    await paymentAccountRepo.save({
+      userId: user.id,
+      provider: randomItem(WALLET_PROVIDERS),
+      accountNumber: formatAccountNumber(walletRaw),
+      accountName: user.fullName,
+      balance: randomBalance(30, 80),
+      isActive: true,
+    });
+
+    // ngân hàng
+    const bankRaw = "10" + Math.floor(100000000 + Math.random() * 900000000);
+    await paymentAccountRepo.save({
+      userId: user.id,
+      provider: randomItem(BANKS_PROVIDERS),
+      accountNumber: formatAccountNumber(bankRaw),
+      accountName: user.fullName,
+      balance: randomBalance(80, 200),
+      isActive: true,
+    });
+  }
+
   await Promise.all(
     orders.map((o, i) => {
       let method: string;
-      if (i % 3 === 0) {
-        method = "momo";
-      } else if (i % 3 === 1) {
-        method = "vnpay";
-      } else {
-        method = BANK_METHODS[i % BANK_METHODS.length];
-      }
+
+      if (i % 3 === 0) method = "momo";
+      else if (i % 3 === 1) method = "vnpay";
+      else method = BANKS_PROVIDERS[i % BANKS_PROVIDERS.length];
+
+      const isPaid = o.status === "confirmed";
+
       return payRepo.save(
         payRepo.create({
-          orderId: String(o.id),
-          userId: String(o.userId),
+          orderId: o.id,
+          userId: o.userId,
           amount: o.total,
           method,
-          status:
-            o.status === "success"
-              ? "success"
-              : o.status === "pending"
-              ? "pending"
-              : "failed",
+          status: isPaid ? "success" : "pending",
+          code: isPaid ? `PAY-${Date.now()}.toString().slice(-6)-${i}` : null,
+          paidAt: isPaid ? new Date() : null,
         })
       );
     })

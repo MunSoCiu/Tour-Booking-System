@@ -11,6 +11,7 @@ import { TestimonialsModule } from "./modules/testimonials/testimonials.module";
 import { ContactModule } from "./modules/contact/contact.module";
 import { ConfigModule } from "@nestjs/config";
 import { AdminModule } from "./modules/admin/admin.module";
+import { NotificationsModule } from "./modules/notifications/notifications.module";
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AdminModule } from "./modules/admin/admin.module";
     ContactModule,
     ConfigModule.forRoot({ isGlobal: true }),
     AdminModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

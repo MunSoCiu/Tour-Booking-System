@@ -7,6 +7,7 @@ import OrderItemActions from "./OrderItemActions";
 import { formatPrice } from "@/lib/utils/formatPrice";
 import { retryOrderPayment } from "@/lib/api/orders";
 import { authFetch } from "@/lib/api/authFetch";
+import { resolveImage } from "@/lib/utils/resolveImage";
 
 export default function OrdersList({
   status,
@@ -19,6 +20,7 @@ export default function OrdersList({
 }) {
   const [data, setData] = useState<any>(null);
   const router = useRouter();
+  const isLocal = process.env.NODE_ENV === "development";
 
   useEffect(() => {
     fetchMyOrders({ status, search, page }).then(setData);
@@ -51,7 +53,7 @@ export default function OrdersList({
   }
 
   function handlePay(orderId: string) {
-    router.push(`/payment?orderId=${orderId}`);
+    router.push(`/payment/${orderId}`);
   }
 
   async function handleDelete(orderId: string) {
@@ -59,7 +61,7 @@ export default function OrdersList({
 
     const API = process.env.NEXT_PUBLIC_API_URL;
 
-    const res = await authFetch(`${API}/orders/${orderId}`, {
+    const res = await authFetch(`/orders/${orderId}`, {
       method: "DELETE",
     });
 
@@ -86,11 +88,12 @@ export default function OrdersList({
           >
             {/* IMAGE */}
             <Image
-              src={item.tourImage || "/images/default.jpg"}
+              src={resolveImage(item.tourImage) || "/images/default.jpg"}
               width={120}
               height={90}
               alt={item.tourTitle}
               className="rounded-xl object-cover border"
+              unoptimized={isLocal}
             />
 
             {/* INFO */}

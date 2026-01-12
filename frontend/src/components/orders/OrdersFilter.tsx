@@ -3,7 +3,7 @@
 const TABS = [
   { label: "Tất cả", value: "" },
   { label: "Chờ thanh toán", value: "pending" },
-  { label: "Đã hoàn thành", value: "success" },
+  { label: "Đã hoàn thành", value: "confirmed" },
   { label: "Đã hủy", value: "cancelled" },
 ];
 

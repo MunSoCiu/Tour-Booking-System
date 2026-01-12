@@ -11,12 +11,14 @@ import DealCard from "@/components/home/DealCard";
 import TestimonialCard from "@/components/home/TestimonialCard";
 import { formatPrice } from "@/lib/utils/formatPrice";
 import PublicLayout from "./public-layout";
+import { resolveImage } from "@/lib/utils/resolveImage";
 
 export default function HomePage() {
   const API = process.env.NEXT_PUBLIC_API_URL;
 
   const [tours, setTours] = useState<any[]>([]);
   const [testimonials, setTestimonials] = useState<any[]>([]);
+  const isLocal = process.env.NODE_ENV === "development";
 
   // Search states
   const [searchTxt, setSearchTxt] = useState("");
@@ -90,6 +92,7 @@ export default function HomePage() {
             fill
             priority
             className="object-cover object-center brightness-[0.6]"
+            unoptimized={isLocal}
           />
 
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
@@ -155,7 +158,7 @@ export default function HomePage() {
               <DestinationCard
                 key={tour.id}
                 title={tour.title}
-                image={tour.image}
+                image={resolveImage(tour.image) || "/images/default-tour.jpg"}
               />
             ))}
           </div>
